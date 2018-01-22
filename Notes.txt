@@ -1,0 +1,14 @@
+Using UR4 Landscapes
+
+**Terragen or World Machine good for generating maps
+
+#What's good about Landscapes
+
++ UR4 landscapes use 4 bytes per vertex vs static mesh using about 20-24 bytes per vertex (1/6th storage space)
++ Support LOD (Level Of Detail) and streaming == makes it easy for UR4 to determine what to show when at what resolution
++ Up to 8196x8196 heightmaps for import see ** (typical UR4 scale is one meter per unit) possible 8kmx8km size maps
++ Good built-in tools for sculpting
++ Works well with mini-maps
+
+======================
+ 

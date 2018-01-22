@@ -111,3 +111,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+BattleTank/Intermediate/
+BattleTank/Saved/
+BattleTank/Binaries/
