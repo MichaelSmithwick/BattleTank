@@ -17,4 +17,11 @@ Landscape is found under 'All Classes' on the Modes tab, or click on the mountai
 1 km x 1 km with 1/2 meter resolution
 
 Scale is in centimeters
+
+------------------------------
+
+
+Built tank -- in Blue Print screen replace default scene root with the tank object (pawn)
+
+
  
