@@ -11,4 +11,10 @@ Using UR4 Landscapes
 + Works well with mini-maps
 
 ======================
+
+Landscape is found under 'All Classes' on the Modes tab, or click on the mountain tab to get landscape also.
+
+1 km x 1 km with 1/2 meter resolution
+
+Scale is in centimeters
  
