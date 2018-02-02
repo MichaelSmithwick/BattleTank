@@ -63,20 +63,19 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 		false,
 		0.0,
 		0.0,
-		ESuggestProjVelocityTraceOption::TraceFullPath
+		ESuggestProjVelocityTraceOption::DoNotTrace
 	);
 
 	if(bHaveAimSolution)
 	{
 		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
-		//UE_LOG(LogTemp, Warning, TEXT("Aiming at: %s"), *(AimDirection.ToString()))
-
 		MoveBarrelTowards(AimDirection);
 	}
-	//FString MyName = GetOwner()->GetName();
-	//BarrelLocation = Barrel->GetComponentLocation();
-	//FString BarrelLocationStr = BarrelLocation.ToString();
-	//UE_LOG(LogTemp, Warning, TEXT("%s_%s => velocity: %f tgt: %s"), *MyName, *BarrelLocationStr, LaunchSpeed, *(HitLocation.ToString()))
+	else
+	{
+		float Time = GetWorld()->GetTimeSeconds();
+		UE_LOG(LogTemp, Warning, TEXT("%f No Solution Found"), Time)
+	}
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
@@ -85,5 +84,8 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;
 
-	Barrel->ElevateBarrel(5.0);  // TODO replace magic number
+	UE_LOG(LogTemp, Warning, TEXT("BarrelRotator: %f, AimRotator: %f"), BarrelRotator.Pitch, AimAsRotator.Pitch)
+	//UE_LOG(LogTemp, Warning, TEXT("Delta Pitch: %f"), DeltaRotator.Pitch)
+
+	Barrel->ElevateBarrel(DeltaRotator.Pitch);  // TODO replace magic number
 }

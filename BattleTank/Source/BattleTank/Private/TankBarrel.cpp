@@ -2,24 +2,19 @@
 
 #include "TankBarrel.h"
 
-void UTankBarrel::ElevateBarrel(float DegreesPerSecond)
+// moves barrel up or down. The movement is a combination of the RelativeSpeed multiplying
+// the MaxDegreesPerSecond
+// @RelativeSpeed adjusts movement rate. Range -1.0<=RelativeSpeed<=1.0
+void UTankBarrel::ElevateBarrel(float RelativeSpeed)
 {
-	FRotator BarrelRotator = GetForwardVector().Rotation();
+	RelativeSpeed = FMath::Clamp<float>(RelativeSpeed, -1.0, 1.0);
 
-	if (BarrelRotator.Pitch > MaxElevation)
-	{
-		BarrelRotator.Pitch = MaxElevation;
-	}
+	float ElevationChange = RelativeSpeed * MaxDegreesPerSecond * GetWorld()->DeltaTimeSeconds;
+	float RawNewElevation = RelativeRotation.Pitch + ElevationChange;
 
-	if (BarrelRotator.Pitch < MinElevation)
-	{
-		BarrelRotator.Pitch = MinElevation;
-	}
+	float ValidElevation = FMath::Clamp<float>(RawNewElevation, MinElevation, MaxElevation);
 
-	SetRelativeRotation(BarrelRotator);
-
-
-	UE_LOG(LogTemp, Warning, TEXT("DegreesPerSecond: %f"), DegreesPerSecond)
+	SetRelativeRotation(FRotator(ValidElevation,0.0,0.0));
 }
 
 
