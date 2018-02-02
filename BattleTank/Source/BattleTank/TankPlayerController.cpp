@@ -27,11 +27,13 @@ void ATankPlayerController::Tick(float DeltaSeconds)
 	AimTowardsCrosshair();
 }
 
+// get pawn associated with this object and cast to ATank type
 ATank* ATankPlayerController::GetControlledTank() const
 {
 	return Cast<ATank>(GetPawn());
 }
 
+// Get the location the gun sight is pointing at and pass it to the tank aiming system
 void ATankPlayerController::AimTowardsCrosshair()
 {
 	ATank* MyTank = GetControlledTank();
@@ -43,30 +45,19 @@ void ATankPlayerController::AimTowardsCrosshair()
 	}
 
 	FVector HitLocation;
-//	UE_LOG(LogTemp, Warning, TEXT("Hit Location: %s"), *(HitLocation.ToString()))
 
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		UE_LOG(LogTemp,Warning,TEXT("New Hit Location: %s"),*(HitLocation.ToString()))
+		MyTank->AimAt(HitLocation);
 	}
 }
 
-bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation) const
+// Linetrace along that look direction, and see what we hit (up to max range)
+bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation)
 {
-	// HitLocation = FVector(1.0);
-	// Find the crosshair
-	// 'De-project' the screen position of the crosshair to a world direction
-	// Linetrace along that look direction, and see what we hit (up to max range)
-
-	int32 ViewportSizeX, ViewportSizeY;
-	GetViewportSize(ViewportSizeX, ViewportSizeY);
-
-	FVector2D ScreenLocation = FVector2D(
-		((float)ViewportSizeX)*CrossHairXLocation,
-		((float)ViewportSizeY)*CrossHairYLocation
-	);
-
+	FVector2D ScreenLocation = CrosshairScreenLocation();
 	FVector LookDirection;
+
 	if(GetLookDirection(ScreenLocation, LookDirection))
 	{
 		return GetLookVectorHitLocation(LookDirection,HitLocation);
@@ -75,34 +66,48 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation) const
 	return false;
 }
 
+// Get the X,Y coordinates of the Crosshair location in the viewport
+FVector2D ATankPlayerController::CrosshairScreenLocation()
+{
+	// The aiming point is positioned statically in the viewport.
+	// For example it may be positioned at 50% of the screen width and 30% of the screen height
+	int32 ViewportSizeX, ViewportSizeY;
+	GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+	// Calculate viewport coordinates by multiplying the percentage values (X%,Y%)
+	// by the actual width and height of the viewport
+	return FVector2D(
+		((float)ViewportSizeX)*CrossHairXLocation,
+		((float)ViewportSizeY)*CrossHairYLocation
+	);
+}
+
+// get a unit vector pointing from player location through crosshairs location
+// @ScreenLocation is the x,y coordinates of the crosshair on the screen
+// @LookDirection is the returned unit vector
+// @return false if unable, true if successful
 bool ATankPlayerController::GetLookDirection(const FVector2D& ScreenLocation, FVector& LookDirection) const
 {
 	FVector WorldLocation;
 	return DeprojectScreenPositionToWorld(ScreenLocation.X, ScreenLocation.Y, WorldLocation, LookDirection);
 }
 
+// Check the vector from player through crosshair out to given range and see if any visible thing has been hit
+// @LookDirection is a unit vector from the player position pointing through crosshair
+// @HitLocation is returned as the location of the item that would be hit, or (0,0,0) if there is no object.
+// @return false if no object to be hit, true if there is an object that would be hit.
 bool ATankPlayerController::GetLookVectorHitLocation(const FVector& LookDirection,FVector& HitLocation) const
 {
 	FHitResult OutHit;
 	FVector Start=PlayerCameraManager->GetCameraLocation();
 	FVector End = Start + (LookDirection*LineTraceRange); // note vector functionality here!!
-	/* -- This will work but the method used is more elegent
-	FVector End=FVector(
-		Start.X+(LookDirection.X*LineTraceRange),
-		Start.Y+(LookDirection.Y*LineTraceRange),
-		Start.Z+(LookDirection.Z*LineTraceRange)
-	);
-	*/
-	FCollisionQueryParams Params;
-	FCollisionResponseParams ResponseParam;
 
 	if (GetWorld()->LineTraceSingleByChannel(
 		OutHit,
 		Start,
 		End,
-		ECollisionChannel::ECC_Visibility, // hit anything that is visible
-		Params,
-		ResponseParam))
+		ECollisionChannel::ECC_Visibility // hit anything that is visible
+	))
 	{
 		HitLocation = OutHit.Location;
 		return true;

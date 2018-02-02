@@ -6,6 +6,7 @@
 #include "Tank.h"
 #include "BattleTank.h"
 #include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
 #include "TankPlayerController.generated.h"
 
 //typedef int32 ATank;
@@ -31,18 +32,22 @@ private:
 	void AimTowardsCrosshair();
 
 	// Return an OUT parameter, true if hit landscape
-	bool GetSightRayHitLocation(FVector & HitLocation) const;
+	bool GetSightRayHitLocation(FVector & HitLocation);
+
+	// Get X,Y viewport coordinates for Crosshair screen location
+	FVector2D CrosshairScreenLocation();
 
 	bool GetLookDirection(const FVector2D& ScreenLocation, FVector & LookDirection) const;
 
 	bool GetLookVectorHitLocation(const FVector& LookDirection, FVector& HitLocation) const;
 
-	// screen coordinates have 0,0 in upper left hand corner
-	// horizontal crosshair position on screen - range 0.0 to 1.0
+	// Crosshair horizontal position on screen - range 0.0 to 1.0
+	// Origin in upper left hand corner
 	UPROPERTY(EditAnywhere)
 	float CrossHairXLocation = 0.5000;
 
-	// vertical crosshair position on screen - range 0.0 to 1.0
+	// Crosshair vertical position on screen - range 0.0 to 1.0
+	// Origin in upper left hand corner
 	UPROPERTY(EditAnywhere)
 	float CrossHairYLocation = 0.3333;
 
