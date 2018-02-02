@@ -1,6 +1,7 @@
 // Copyright(c)2018 -- Mike Smithwick -- All Rights Reserved
 
 #include "Tank.h"
+#include "TankBarrel.h"
 
 // Sets default values
 ATank::ATank()
@@ -10,9 +11,14 @@ ATank::ATank()
 	TankAimingComponent = CreateDefaultSubobject<UTankAimingComponent>(FName("Aiming Component"));
 }
 
-void ATank::SetBarrelReference(UStaticMeshComponent * BarrelToSet)
+void ATank::SetBarrelReference(UTankBarrel* BarrelToSet)
 {
 	TankAimingComponent->SetBarrelReference(BarrelToSet);
+}
+
+void ATank::SetTurretReference(UStaticMeshComponent * TurretToSet)
+{
+	TankAimingComponent->SetTurretReference(TurretToSet);
 }
 
 void ATank::AimAt(FVector HitLocation)

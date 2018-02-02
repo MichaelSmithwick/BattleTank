@@ -3,6 +3,7 @@
 #include "TankAimingComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "TankBarrel.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -25,9 +26,14 @@ void UTankAimingComponent::BeginPlay()
 }
 
 // Set the barrel item
-void UTankAimingComponent::SetBarrelReference(UStaticMeshComponent * BarrelToSet)
+void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
 {
 	Barrel = BarrelToSet;
+}
+
+void UTankAimingComponent::SetTurretReference(UStaticMeshComponent * TurretToSet)
+{
+	Turret = TurretToSet;
 }
 
 // Called every frame
@@ -78,6 +84,6 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	FRotator BarrelRotator = Barrel->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;
-	UE_LOG(LogTemp,Warning,TEXT("DeltaRotator: %s"),*(DeltaRotator.ToString()))
-	//Barrel->SetWorldRotation(BarrelRotator, true);
+
+	Barrel->ElevateBarrel(5.0);  // TODO replace magic number
 }
