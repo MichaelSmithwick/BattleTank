@@ -22,6 +22,7 @@ public:
 
 
 private:
+	// TODO - Determine if these functions are needed for the AI Tank Controller
 	void AimTowardsCrosshair();
 
 	bool GetSightRayHitLocation(FVector & HitLocation) const;

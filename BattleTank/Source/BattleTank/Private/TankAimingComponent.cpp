@@ -11,7 +11,7 @@ UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
@@ -73,11 +73,6 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 		MoveBarrelTowards(AimDirection);
 		MoveTurretTowards(AimDirection);
 	}
-	else
-	{
-		float Time = GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f No Solution Found"), Time)
-	}
 }
 
 void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
@@ -85,9 +80,6 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	FRotator BarrelRotator = Barrel->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;
-
-	//UE_LOG(LogTemp, Warning, TEXT("BarrelRotator: %f, AimRotator: %f"), BarrelRotator.Pitch, AimAsRotator.Pitch)
-		//UE_LOG(LogTemp, Warning, TEXT("Delta Pitch: %f"), DeltaRotator.Pitch)
 
 	Barrel->ElevateBarrel(DeltaRotator.Pitch);
 }
@@ -97,9 +89,6 @@ void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	FRotator TurretRotator = Turret->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
-
-	//UE_LOG(LogTemp, Warning, TEXT("TurretRotator: %f, AimRotator: %f"), TurretRotator.Yaw, AimAsRotator.Yaw)
-		//UE_LOG(LogTemp, Warning, TEXT("Delta Pitch: %f"), DeltaRotator.Pitch)
 
 	Turret->RotateTurret(DeltaRotator.Yaw); 
 }
