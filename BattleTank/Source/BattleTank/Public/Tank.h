@@ -8,6 +8,7 @@
 
 class UTankAimingComponent;
 class UTankBarrel;
+class UTankTurret;
 
 UCLASS()
 class BATTLETANK_API ATank : public APawn
@@ -22,7 +23,7 @@ public:
 	void SetBarrelReference(UTankBarrel* BarrelToSet);
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
-	void SetTurretReference(UStaticMeshComponent* TurretToSet);
+	void SetTurretReference(UTankTurret* TurretToSet);
 
 	// Location of whatever the tank is aiming at
 	void AimAt(FVector HitLocation);

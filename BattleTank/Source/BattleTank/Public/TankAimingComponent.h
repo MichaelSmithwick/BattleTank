@@ -8,6 +8,7 @@
 #include "TankAimingComponent.generated.h"
 
 class UTankBarrel;
+class UTankTurret;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATTLETANK_API UTankAimingComponent : public UActorComponent
@@ -20,7 +21,7 @@ public:
 
 	// barrel setter
 	void SetBarrelReference(UTankBarrel* BarrelToSet);
-	void SetTurretReference(UStaticMeshComponent* TurretToSet);
+	void SetTurretReference(UTankTurret* TurretToSet);
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -31,6 +32,9 @@ public:
 	// Move tank barrel
 	void MoveBarrelTowards(FVector AimDirection);
 
+	// Move tank turret
+	void MoveTurretTowards(FVector AimDirection);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -38,8 +42,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Firing)
 	FVector BarrelLocation = FVector(0);
 
+	UPROPERTY(EditAnywhere, Category = Firing)
+	FVector TurretLocation = FVector(0);
+
 private:
 	UTankBarrel* Barrel = nullptr;
-	UStaticMeshComponent* Turret = nullptr;
+	UTankTurret* Turret = nullptr;
 	
 };

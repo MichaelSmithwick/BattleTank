@@ -4,6 +4,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "TankBarrel.h"
+#include "TankTurret.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -31,7 +32,7 @@ void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
 	Barrel = BarrelToSet;
 }
 
-void UTankAimingComponent::SetTurretReference(UStaticMeshComponent * TurretToSet)
+void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
 {
 	Turret = TurretToSet;
 }
@@ -46,7 +47,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 {
-	if (!Barrel)
+	if (!Barrel || !Turret)
 	{
 		return;
 	}
@@ -70,6 +71,7 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 	{
 		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrelTowards(AimDirection);
+		MoveTurretTowards(AimDirection);
 	}
 	else
 	{
@@ -84,8 +86,20 @@ void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;
 
-	UE_LOG(LogTemp, Warning, TEXT("BarrelRotator: %f, AimRotator: %f"), BarrelRotator.Pitch, AimAsRotator.Pitch)
-	//UE_LOG(LogTemp, Warning, TEXT("Delta Pitch: %f"), DeltaRotator.Pitch)
+	//UE_LOG(LogTemp, Warning, TEXT("BarrelRotator: %f, AimRotator: %f"), BarrelRotator.Pitch, AimAsRotator.Pitch)
+		//UE_LOG(LogTemp, Warning, TEXT("Delta Pitch: %f"), DeltaRotator.Pitch)
 
-	Barrel->ElevateBarrel(DeltaRotator.Pitch);  // TODO replace magic number
+	Barrel->ElevateBarrel(DeltaRotator.Pitch);
+}
+
+void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
+{
+	FRotator TurretRotator = Turret->GetForwardVector().Rotation();
+	FRotator AimAsRotator = AimDirection.Rotation();
+	FRotator DeltaRotator = AimAsRotator - TurretRotator;
+
+	//UE_LOG(LogTemp, Warning, TEXT("TurretRotator: %f, AimRotator: %f"), TurretRotator.Yaw, AimAsRotator.Yaw)
+		//UE_LOG(LogTemp, Warning, TEXT("Delta Pitch: %f"), DeltaRotator.Pitch)
+
+	Turret->RotateTurret(DeltaRotator.Yaw); 
 }

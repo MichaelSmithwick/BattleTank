@@ -1,6 +1,7 @@
 // Copyright(c)2018 -- Mike Smithwick -- All Rights Reserved
 
 #include "TankBarrel.h"
+#include "Classes/Components/ActorComponent.h"
 
 // moves barrel up or down. The movement is a combination of the RelativeSpeed multiplying
 // the MaxDegreesPerSecond
@@ -14,7 +15,7 @@ void UTankBarrel::ElevateBarrel(float RelativeSpeed)
 
 	float ValidElevation = FMath::Clamp<float>(RawNewElevation, MinElevation, MaxElevation);
 
-	SetRelativeRotation(FRotator(ValidElevation,0.0,0.0));
+	SetRelativeRotation(FRotator(ValidElevation, RelativeRotation.Yaw, RelativeRotation.Roll));
 }
 
 
