@@ -1,7 +1,7 @@
 // Copyright(c)2018 -- Mike Smithwick -- All Rights Reserved
 
 #include "TankBarrel.h"
-#include "Classes/Components/ActorComponent.h"
+#include "Engine/World.h"
 
 // moves barrel up or down. The movement is a combination of the RelativeSpeed multiplying
 // the MaxDegreesPerSecond

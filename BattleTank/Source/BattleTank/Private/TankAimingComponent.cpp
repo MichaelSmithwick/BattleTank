@@ -69,26 +69,55 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 
 	if(bHaveAimSolution)
 	{
+		ClearTargetLock();
+
 		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
-		MoveBarrelTowards(AimDirection);
-		MoveTurretTowards(AimDirection);
+
+		bool BarrelLock = MoveBarrelTowards(AimDirection);
+		bool TurretLock = MoveTurretTowards(AimDirection);
+
+		// many compilers will optimize out the second operation if the first is false
+		// the MoveTurretTowards() function should be carried out even if MoveBarrelTowards() returns false
+		if (BarrelLock && TurretLock)
+		{
+			SetTargetLock();
+		}
 	}
 }
 
-void UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
+bool UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 {
 	FRotator BarrelRotator = Barrel->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - BarrelRotator;
 
 	Barrel->ElevateBarrel(DeltaRotator.Pitch);
+
+	return DeltaRotator.Pitch < LockError;
 }
 
-void UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
+bool UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 {
 	FRotator TurretRotator = Turret->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
 
-	Turret->RotateTurret(DeltaRotator.Yaw); 
+	Turret->RotateTurret(DeltaRotator.Yaw);
+
+	return DeltaRotator.Yaw < LockError;
+}
+
+void UTankAimingComponent::ClearTargetLock()
+{
+	TargetLock = false;
+}
+
+void UTankAimingComponent::SetTargetLock()
+{
+	TargetLock = true;
+}
+
+bool UTankAimingComponent::TargetLocked()
+{
+	return TargetLock;
 }

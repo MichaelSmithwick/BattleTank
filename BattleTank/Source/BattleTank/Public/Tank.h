@@ -43,10 +43,19 @@ protected:
 	
 	UTankBarrel* Barrel = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
-	float LaunchSpeed = 5000; // TODO find sensible launch velocity
+private:
 
+	double LastFireTime = 0;
+
+	// The time delay before next shot is ready
+	UPROPERTY(EditAnywhere, Category = Setup)
+	float ReloadTimeInSeconds = 3;
+
+	// The speed in cm/s of the launched projectile
+	UPROPERTY(EditAnywhere, Category = Setup)
+	float LaunchSpeed = 5000;
+
+	// The blueprint of the projectile (must be AProjectile class)
 	UPROPERTY(EditAnywhere, Category = Setup)
 	TSubclassOf<AProjectile> ProjectileBlueprint;
-
 };

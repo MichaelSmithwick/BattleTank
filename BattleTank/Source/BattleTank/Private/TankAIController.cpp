@@ -1,30 +1,22 @@
 // Copyright(c)2018 -- Mike Smithwick -- All Rights Reserved
 
 #include "TankAIController.h"
-#include "Engine/World.h"
 #include "Tank.h"
+#include "Engine/World.h"
 
 void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("ATankAIController called."))
-
-	ATank* AITank = GetControlledTank();
-	if (!AITank)
+	if (!GetPawn())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Unable to get AI Tank."))
 		return;
 	}
 
-	ATank* PlayerTank = GetPlayerTank();
-	if (!PlayerTank)
+	if (!GetWorld()->GetFirstPlayerController()->GetPawn())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Unable to get Player Tank."))
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AI Tank %s found the Player Tank: %s"), *(AITank->GetName()),*(PlayerTank->GetName()))
 	}
 }
 
@@ -35,12 +27,22 @@ void ATankAIController::Tick(float DeltaSeconds)
 
 	// TODO Move towards player
 
+	ATank* ThisTank = Cast<ATank>(GetPawn());
+	ATank* PlayerTank = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	if (!PlayerTank)
+	{
+		return;
+	}
+
 	// Aim towards player
-	GetControlledTank()->AimAt(GetPlayerTank()->GetActorLocation());
+	ThisTank->AimAt(PlayerTank->GetActorLocation());
 
 	// Fire if ready
+	ThisTank->Fire();
 }
 
+/* These methods are unused but may be recalled later
 ATank* ATankAIController::GetControlledTank() const
 {
 	return Cast<ATank>(GetPawn());
@@ -48,7 +50,7 @@ ATank* ATankAIController::GetControlledTank() const
 
 ATank * ATankAIController::GetPlayerTank() const
 {
-	auto PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+	APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
 	if (!PlayerPawn)
 	{
 		return nullptr;
@@ -58,6 +60,7 @@ ATank * ATankAIController::GetPlayerTank() const
 		return Cast<ATank>(PlayerPawn);
 	}
 }
+*/
 
 
 

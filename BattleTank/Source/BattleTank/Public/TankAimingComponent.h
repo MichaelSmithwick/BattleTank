@@ -30,10 +30,13 @@ public:
 	void AimAt(FVector HitLocation, float LaunchSpeed);
 
 	// Move tank barrel
-	void MoveBarrelTowards(FVector AimDirection);
+	bool MoveBarrelTowards(FVector AimDirection);
 
 	// Move tank turret
-	void MoveTurretTowards(FVector AimDirection);
+	bool MoveTurretTowards(FVector AimDirection);
+
+	// Is the target in the sights? (true if it is, false otherwise)
+	bool TargetLocked();
 
 protected:
 	// Called when the game starts
@@ -46,7 +49,16 @@ protected:
 	FVector TurretLocation = FVector(0);
 
 private:
+	void ClearTargetLock();
+
+	void SetTargetLock();
+
 	UTankBarrel* Barrel = nullptr;
 	UTankTurret* Turret = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = Firing)
+	float LockError = 0.5;
+
+	bool TargetLock = false;
 	
 };

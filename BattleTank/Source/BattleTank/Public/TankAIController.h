@@ -31,9 +31,10 @@ private:
 
 	bool GetLookVectorHitLocation(const FVector & LookDirection, FVector & HitLocation) const;
 
+	/*
 	ATank* GetControlledTank() const;
-
 	ATank* GetPlayerTank() const;
+	*/
 
 	UPROPERTY(EditAnywhere)
 	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
