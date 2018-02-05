@@ -36,6 +36,6 @@ private:
 	ATank* GetPlayerTank() const;
 	*/
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
 };

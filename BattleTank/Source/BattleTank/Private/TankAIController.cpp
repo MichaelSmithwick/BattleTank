@@ -8,13 +8,16 @@ void ATankAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!GetPawn())
+	APawn* ThisTank = GetPawn();
+	APawn* PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
+
+	if (!ThisTank)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Unable to get AI Tank."))
 		return;
 	}
 
-	if (!GetWorld()->GetFirstPlayerController()->GetPawn())
+	if (!PlayerTank)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Unable to get Player Tank."))
 	}
@@ -24,6 +27,8 @@ void ATankAIController::BeginPlay()
 void ATankAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	//UE_LOG(LogTemp,Warning,TEXT("ATankAIController Tick()"))
 
 	// TODO Move towards player
 

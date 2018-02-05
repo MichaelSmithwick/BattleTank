@@ -42,11 +42,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
-	FVector BarrelLocation = FVector(0);
+	// TODO Remove BarrelLocation & TurretLocation if not needed
+	// UPROPERTY(EditAnywhere, Category = Firing)
+	// FVector BarrelLocation = FVector(0);
 
-	UPROPERTY(EditAnywhere, Category = Firing)
-	FVector TurretLocation = FVector(0);
+	// UPROPERTY(EditAnywhere, Category = Firing)
+	// FVector TurretLocation = FVector(0);
 
 private:
 	void ClearTargetLock();
@@ -56,7 +57,7 @@ private:
 	UTankBarrel* Barrel = nullptr;
 	UTankTurret* Turret = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	float LockError = 0.5;
 
 	bool TargetLock = false;

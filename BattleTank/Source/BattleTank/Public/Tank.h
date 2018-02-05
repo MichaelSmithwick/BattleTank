@@ -10,6 +10,7 @@ class UTankAimingComponent;
 class UTankBarrel;
 class UTankTurret;
 class AProjectile;
+class UTankTrack;
 
 UCLASS()
 class BATTLETANK_API ATank : public APawn
@@ -25,6 +26,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
 	void SetTurretReference(UTankTurret* TurretToSet);
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void SetRightTrackReference(UTankTrack* TrackToSet);
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void SetLeftTrackReference(UTankTrack* TrackToSet);
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
 	void Fire();
@@ -45,17 +52,20 @@ protected:
 
 private:
 
+	UTankTrack* RightTrack = nullptr;
+	UTankTrack* LeftTrack = nullptr;
+
 	double LastFireTime = 0;
 
 	// The time delay before next shot is ready
-	UPROPERTY(EditAnywhere, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
 	float ReloadTimeInSeconds = 3;
 
 	// The speed in cm/s of the launched projectile
-	UPROPERTY(EditAnywhere, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
 	float LaunchSpeed = 5000;
 
 	// The blueprint of the projectile (must be AProjectile class)
-	UPROPERTY(EditAnywhere, Category = Setup)
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
 	TSubclassOf<AProjectile> ProjectileBlueprint;
 };

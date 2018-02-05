@@ -42,18 +42,18 @@ private:
 
 	// Crosshair horizontal position on screen - range 0.0 to 1.0
 	// Origin in upper left hand corner
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float CrossHairXLocation = 0.5000;
 
 	// Crosshair vertical position on screen - range 0.0 to 1.0
 	// Origin in upper left hand corner
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float CrossHairYLocation = 0.3333;
 
 	// TODO Make this parameter to be kilometers and scale programatically
 	//      to be centimeters - 1 Million cm is crazy when most calculations
 	//      are going to be in kilometers!
 	// distance in centimeters
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
 };
