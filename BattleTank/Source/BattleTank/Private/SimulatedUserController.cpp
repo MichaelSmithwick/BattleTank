@@ -24,6 +24,55 @@ void USimulatedUserController::BeginPlay()
 	
 }
 
+// Called every frame
+void USimulatedUserController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+	// Left = UpdateController(Left);
+	// Right = UpdateController(Right);
+
+	if (CmdLFwd && Left < 1.0)
+	{
+		if (LeftForward() >= 1.0)
+		{
+			CmdLFwd = false;
+		}
+
+	}
+	if (CmdLRev && Left > -1.0)
+	{
+		if (LeftReverse() <= -1.0)
+		{
+			CmdLRev = false;
+		}
+
+	}
+
+	if (CmdRFwd && Right < 1.0)
+	{
+		if (RightForward() >= 1.0)
+		{
+			CmdRFwd = false;
+		}
+
+	}
+	if (CmdRRev && Right > -1.0)
+	{
+		if (RightReverse() <= -1.0)
+		{
+			CmdRRev = false;
+		}
+
+	}
+
+	// update blueprint
+	ReturnLeft();
+	ReturnRight();
+}
+
+// Incrementally returns controller value to zero position
 float USimulatedUserController::UpdateController(float CurrentValue)
 {
 	float Increment = IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
@@ -44,20 +93,9 @@ float USimulatedUserController::UpdateController(float CurrentValue)
 	return CurrentValue;
 }
 
-
-// Called every frame
-void USimulatedUserController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-	Left = UpdateController(Left);
-	Right = UpdateController(Right);
-}
-
 float USimulatedUserController::LeftForward()
 {
-	Left += IncrementPerSecond;
+	Left += IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
 	Left = FMath::Clamp<float>(Left, -1.0, 1.0);
 
 	UE_LOG(LogTemp,Warning,TEXT("Left Forward: %f"), Left)
@@ -67,7 +105,7 @@ float USimulatedUserController::LeftForward()
 
 float USimulatedUserController::LeftReverse()
 {
-	Left -= IncrementPerSecond;
+	Left -= IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
 	Left = FMath::Clamp<float>(Left, -1.0, 1.0);
 
 	UE_LOG(LogTemp, Warning, TEXT("Left Reverse: %f"), Left)
@@ -77,7 +115,7 @@ float USimulatedUserController::LeftReverse()
 
 float USimulatedUserController::RightForward()
 {
-	Right += IncrementPerSecond;
+	Right += IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
 	Right = FMath::Clamp<float>(Right, -1.0, 1.0);
 
 	UE_LOG(LogTemp, Warning, TEXT("Right Forward: %f"),Right)
@@ -86,12 +124,54 @@ float USimulatedUserController::RightForward()
 
 float USimulatedUserController::RightReverse()
 {
-	Right -= IncrementPerSecond;
+	Right -= IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
 	Right = FMath::Clamp<float>(Right, -1.0, 1.0);
 
 	UE_LOG(LogTemp, Warning, TEXT("Right Reverse: %f"),Right)
 
 	return Right;
+}
+
+bool USimulatedUserController::CMDLeftForward()
+{
+	CmdLFwd = true;
+	CmdLRev = false;
+	return true;
+}
+
+bool USimulatedUserController::CMDLeftReverse()
+{
+	CmdLFwd = false;
+	CmdLRev = true;
+	return true;
+}
+
+bool USimulatedUserController::CMDRightForward()
+{
+	CmdRFwd = true;
+	CmdRRev = false;
+	return true;
+}
+
+bool USimulatedUserController::CMDRightReverse()
+{
+	CmdRFwd = false;
+	CmdRRev = true;
+	return true;
+}
+
+void USimulatedUserController::CmdLeftStop()
+{
+	CmdLFwd = false;
+	CmdLRev = false;
+	Left = 0.0;
+}
+
+void USimulatedUserController::CmdRightStop()
+{
+	CmdRFwd = false;
+	CmdRRev = false;
+	Right = 0.0;
 }
 
 float USimulatedUserController::ReturnLeft()

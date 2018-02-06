@@ -32,6 +32,24 @@ public:
 	float RightReverse();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
+	bool CMDLeftForward();
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	bool CMDLeftReverse();
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	bool CMDRightForward();
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	bool CMDRightReverse();
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void CmdLeftStop();
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void CmdRightStop();
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
 	float ReturnLeft();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
@@ -49,6 +67,11 @@ private:
 	float Left = 0.0;
 
 	float Right = 0.0;
+
+	bool CmdLFwd = false;
+	bool CmdLRev = false;
+	bool CmdRFwd = false;
+	bool CmdRRev = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = Setup)
 	float IncrementPerSecond = 0.1;
