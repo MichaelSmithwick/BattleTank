@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "SimulatedUserController.generated.h"
 
+class UTankTrack;
 
 UCLASS(meta=(BlueprintSpawnableComponent) )
 class BATTLETANK_API USimulatedUserController : public UActorComponent
@@ -20,6 +21,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
+	void Initialize(UTankTrack* TrackR, UTankTrack* TrackL);
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
 	float LeftForward();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
@@ -32,16 +36,16 @@ public:
 	float RightReverse();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
-	bool CMDLeftForward();
+	bool CmdLeftForward();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
-	bool CMDLeftReverse();
+	bool CmdLeftReverse();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
-	bool CMDRightForward();
+	bool CmdRightForward();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
-	bool CMDRightReverse();
+	bool CmdRightReverse();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
 	void CmdLeftStop();
@@ -50,13 +54,28 @@ public:
 	void CmdRightStop();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
+	void CmdForward();
+	
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void CmdReverse();
+	
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void CmdLeft();
+	
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void CmdRight();
+	
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void CmdStop();
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void ReturnRightAndLeft(float& RightValue, float& LeftValue) const;
+
+	UFUNCTION(BlueprintCallable, Category = Setup)
 	float ReturnLeft();
 
 	UFUNCTION(BlueprintCallable, Category = Setup)
 	float ReturnRight();
-
-	UFUNCTION(BlueprintImplementableEvent, Category = Other)
-	void UpdateController();
 
 protected:
 	// Called when the game starts
@@ -73,10 +92,11 @@ private:
 	bool CmdRFwd = false;
 	bool CmdRRev = false;
 
+	UTankTrack* RightTrack = nullptr;
+	UTankTrack* LeftTrack = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, Category = Setup)
-	float IncrementPerSecond = 0.1;
+	float IncrementPerSecond = 0.05;
 
-
-	float UpdateController(float CurrentValue);
-	
+	float MovementIncrement();
 };

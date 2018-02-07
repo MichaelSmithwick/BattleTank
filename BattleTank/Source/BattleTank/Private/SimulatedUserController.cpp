@@ -2,6 +2,7 @@
 
 #include "SimulatedUserController.h"
 #include "Engine/World.h"
+#include "TankTrack.h"
 
 
 // Sets default values for this component's properties
@@ -30,133 +31,98 @@ void USimulatedUserController::TickComponent(float DeltaTime, ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-	// Left = UpdateController(Left);
-	// Right = UpdateController(Right);
-
-	if (CmdLFwd && Left < 1.0)
+	/* Remove this for now
+	if (RightTrack && LeftTrack)
 	{
-		if (LeftForward() >= 1.0)
-		{
-			CmdLFwd = false;
-		}
-
+		RightTrack->DriveTrack(Right);
+		LeftTrack->DriveTrack(Left);
 	}
-	if (CmdLRev && Left > -1.0)
-	{
-		if (LeftReverse() <= -1.0)
-		{
-			CmdLRev = false;
-		}
-
-	}
-
-	if (CmdRFwd && Right < 1.0)
-	{
-		if (RightForward() >= 1.0)
-		{
-			CmdRFwd = false;
-		}
-
-	}
-	if (CmdRRev && Right > -1.0)
-	{
-		if (RightReverse() <= -1.0)
-		{
-			CmdRRev = false;
-		}
-
-	}
-
-	// update blueprint
-	ReturnLeft();
-	ReturnRight();
+	*/
 }
 
-// Incrementally returns controller value to zero position
-float USimulatedUserController::UpdateController(float CurrentValue)
+// Capture left and right track objects
+void USimulatedUserController::Initialize(UTankTrack * TrackR, UTankTrack * TrackL)
 {
-	float Increment = IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
+	RightTrack = TrackR;
+	LeftTrack = TrackL;
+}
 
-	if (CurrentValue > 0.0)
-	{
-		CurrentValue -= Increment;
-	}
-	if (CurrentValue < 0.0)
-	{
-		CurrentValue += Increment;
-	}
-	if (FMath::Abs<float>(CurrentValue) < Increment)
-	{
-		CurrentValue = 0.0;
-	}
-
-	return CurrentValue;
+// calculate the delta to use for movement during the tick phase
+float USimulatedUserController::MovementIncrement()
+{
+	// to sync with game time use this formula
+	// float Increment = IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
+	return IncrementPerSecond;
 }
 
 float USimulatedUserController::LeftForward()
 {
-	Left += IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
+	Left += MovementIncrement();
 	Left = FMath::Clamp<float>(Left, -1.0, 1.0);
 
-	UE_LOG(LogTemp,Warning,TEXT("Left Forward: %f"), Left)
+	// UE_LOG(LogTemp,Warning,TEXT("Left Forward: %f"), Left)
 
 	return Left;
 }
 
 float USimulatedUserController::LeftReverse()
 {
-	Left -= IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
+	Left -= MovementIncrement();
 	Left = FMath::Clamp<float>(Left, -1.0, 1.0);
 
-	UE_LOG(LogTemp, Warning, TEXT("Left Reverse: %f"), Left)
+	// UE_LOG(LogTemp, Warning, TEXT("Left Reverse: %f"), Left)
 
 	return Left;
 }
 
 float USimulatedUserController::RightForward()
 {
-	Right += IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
+	Right += MovementIncrement();
 	Right = FMath::Clamp<float>(Right, -1.0, 1.0);
 
-	UE_LOG(LogTemp, Warning, TEXT("Right Forward: %f"),Right)
+	// UE_LOG(LogTemp, Warning, TEXT("Right Forward: %f"),Right)
 	return Right;
 }
 
 float USimulatedUserController::RightReverse()
 {
-	Right -= IncrementPerSecond * GetWorld()->DeltaTimeSeconds;
+	Right -= MovementIncrement();
 	Right = FMath::Clamp<float>(Right, -1.0, 1.0);
 
-	UE_LOG(LogTemp, Warning, TEXT("Right Reverse: %f"),Right)
+	// UE_LOG(LogTemp, Warning, TEXT("Right Reverse: %f"),Right)
 
 	return Right;
 }
 
-bool USimulatedUserController::CMDLeftForward()
+bool USimulatedUserController::CmdLeftForward()
 {
 	CmdLFwd = true;
 	CmdLRev = false;
+	LeftForward();
 	return true;
 }
 
-bool USimulatedUserController::CMDLeftReverse()
+bool USimulatedUserController::CmdLeftReverse()
 {
 	CmdLFwd = false;
 	CmdLRev = true;
+	LeftReverse();
 	return true;
 }
 
-bool USimulatedUserController::CMDRightForward()
+bool USimulatedUserController::CmdRightForward()
 {
 	CmdRFwd = true;
 	CmdRRev = false;
+	RightForward();
 	return true;
 }
 
-bool USimulatedUserController::CMDRightReverse()
+bool USimulatedUserController::CmdRightReverse()
 {
 	CmdRFwd = false;
 	CmdRRev = true;
+	RightReverse();
 	return true;
 }
 
@@ -174,6 +140,37 @@ void USimulatedUserController::CmdRightStop()
 	Right = 0.0;
 }
 
+void USimulatedUserController::CmdForward()
+{
+	CmdRightForward();
+	CmdLeftForward();
+}
+
+void USimulatedUserController::CmdReverse()
+{
+	CmdRightReverse();
+	CmdLeftReverse();
+}
+
+void USimulatedUserController::CmdLeft()
+{
+	CmdLeftReverse();
+	CmdRightForward();
+}
+
+void USimulatedUserController::CmdRight()
+{
+	CmdRightReverse();
+	CmdLeftForward();
+}
+
+void USimulatedUserController::CmdStop()
+{
+	CmdRightStop();
+	CmdLeftStop();
+}
+
+
 float USimulatedUserController::ReturnLeft()
 {
 	return Left;
@@ -184,3 +181,8 @@ float USimulatedUserController::ReturnRight()
 	return Right;
 }
 
+void USimulatedUserController::ReturnRightAndLeft(float& RightValue, float& LeftValue) const
+{
+	RightValue = Right;
+	LeftValue = Left;
+}
