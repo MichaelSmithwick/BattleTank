@@ -35,16 +35,17 @@ void ATankAIController::Tick(float DeltaSeconds)
 	ATank* ThisTank = Cast<ATank>(GetPawn());
 	ATank* PlayerTank = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
-	if (!PlayerTank)
+	if (PlayerTank)
 	{
-		return;
+		// Move towards player tank
+		MoveToActor(PlayerTank, AcceptanceRadius);
+
+		// Aim towards player
+		ThisTank->AimAt(PlayerTank->GetActorLocation());
+
+		// Fire if ready
+		ThisTank->Fire();
 	}
-
-	// Aim towards player
-	ThisTank->AimAt(PlayerTank->GetActorLocation());
-
-	// Fire if ready
-	ThisTank->Fire();
 }
 
 /* These methods are unused but may be recalled later

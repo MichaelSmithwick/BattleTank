@@ -21,6 +21,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 
+
 private:
 	// TODO - Determine if these functions are needed for the AI Tank Controller
 	void AimTowardsCrosshair();
@@ -35,6 +36,10 @@ private:
 	ATank* GetControlledTank() const;
 	ATank* GetPlayerTank() const;
 	*/
+
+	// How close to get to Player Tank in cm
+	UPROPERTY(EditDefaultsOnly)
+	float AcceptanceRadius = 3000;
 
 	UPROPERTY(EditDefaultsOnly)
 	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
