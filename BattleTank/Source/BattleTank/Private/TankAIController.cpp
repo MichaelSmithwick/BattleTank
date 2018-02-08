@@ -2,6 +2,7 @@
 
 #include "TankAIController.h"
 #include "Tank.h"
+#include "TankAimingComponent.h"
 #include "Engine/World.h"
 
 void ATankAIController::BeginPlay()
@@ -28,10 +29,6 @@ void ATankAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//UE_LOG(LogTemp,Warning,TEXT("ATankAIController Tick()"))
-
-	// TODO Move towards player
-
 	ATank* ThisTank = Cast<ATank>(GetPawn());
 	ATank* PlayerTank = Cast<ATank>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
@@ -40,33 +37,18 @@ void ATankAIController::Tick(float DeltaSeconds)
 		// Move towards player tank
 		MoveToActor(PlayerTank, AcceptanceRadius);
 
+		ATank* ThisTank = Cast<ATank>(GetPawn());
+		UTankAimingComponent* TankAimingComponent = ThisTank->FindComponentByClass<UTankAimingComponent>();
+
 		// Aim towards player
-		ThisTank->AimAt(PlayerTank->GetActorLocation());
+		// ThisTank->AimAt(PlayerTank->GetActorLocation());
+		TankAimingComponent->AimAt(PlayerTank->GetActorLocation());
 
 		// Fire if ready
-		ThisTank->Fire();
+		// ThisTank->Fire();
+		TankAimingComponent->Fire();
 	}
 }
-
-/* These methods are unused but may be recalled later
-ATank* ATankAIController::GetControlledTank() const
-{
-	return Cast<ATank>(GetPawn());
-}
-
-ATank * ATankAIController::GetPlayerTank() const
-{
-	APawn* PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
-	if (!PlayerPawn)
-	{
-		return nullptr;
-	}
-	else
-	{
-		return Cast<ATank>(PlayerPawn);
-	}
-}
-*/
 
 
 

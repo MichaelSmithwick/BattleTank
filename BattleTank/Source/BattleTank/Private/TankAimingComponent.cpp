@@ -3,8 +3,10 @@
 #include "TankAimingComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Projectile.h"
 #include "TankBarrel.h"
 #include "TankTurret.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
@@ -22,19 +24,9 @@ void UTankAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FiringStatus = EFiringStatus::Aiming;
 	// ...
 	
-}
-
-// Set the barrel item
-void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
-{
-	Barrel = BarrelToSet;
-}
-
-void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
-{
-	Turret = TurretToSet;
 }
 
 // Called every frame
@@ -45,7 +37,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
-void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
+void UTankAimingComponent::AimAt(FVector HitLocation)
 {
 	if (!Barrel || !Turret)
 	{
@@ -80,7 +72,30 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 		// the MoveTurretTowards() function should be carried out even if MoveBarrelTowards() returns false
 		if (BarrelLock && TurretLock)
 		{
+			bool bReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+
+			if (!bReloaded)
+			{
+				FiringStatus = EFiringStatus::Reloading;
+			}
+			else
+			{
+				FiringStatus = EFiringStatus::Locked;
+			}
 			SetTargetLock();
+		}
+		else
+		{
+			bool bReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+
+			if (!bReloaded)
+			{
+				FiringStatus = EFiringStatus::Reloading;
+			}
+			else
+			{
+				FiringStatus = EFiringStatus::Aiming;
+			}
 		}
 	}
 }
@@ -107,6 +122,12 @@ bool UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	return DeltaRotator.Yaw < LockError;
 }
 
+void UTankAimingComponent::Initialize(UTankBarrel * BarrelToSet, UTankTurret * TurretToSet)
+{
+	Barrel = BarrelToSet;
+	Turret = TurretToSet;
+}
+
 void UTankAimingComponent::ClearTargetLock()
 {
 	TargetLock = false;
@@ -121,3 +142,24 @@ bool UTankAimingComponent::TargetLocked()
 {
 	return TargetLock;
 }
+
+void UTankAimingComponent::Fire()
+{
+	//UE_LOG(LogTemp,Warning,TEXT("Bang!! Bang!!"))
+
+	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
+
+	if (Barrel && isReloaded && TargetLocked())
+	{
+		// TODO Check ProjectileBlueprint for nullptr value
+		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
+			ProjectileBlueprint,
+			Barrel->GetSocketLocation(FName("Projectile")),
+			Barrel->GetSocketRotation(FName("Projectile"))
+			);
+
+		Projectile->LaunchProjectile(LaunchSpeed);
+		LastFireTime = FPlatformTime::Seconds();
+	}
+}
+

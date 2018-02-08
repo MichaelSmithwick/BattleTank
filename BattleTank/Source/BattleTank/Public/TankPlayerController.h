@@ -22,9 +22,13 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-private:
+protected: // blueprints can access protected members and functions
 
-	ATank* GetControlledTank() const;
+	// Get the Tank being controlled by this object
+	UFUNCTION(BlueprintCallable, Category = "Setup")
+	ATank * GetControlledTank() const;
+
+private:
 
 	// Start the tank moving the barrel so that a shot would hit where
 	// the crosshair intersects the world

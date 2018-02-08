@@ -3,6 +3,7 @@
 #include "TankPlayerController.h"
 #include "Engine/World.h"
 #include "Tank.h"
+#include "TankAimingComponent.h"
 
 void ATankPlayerController::BeginPlay()
 {
@@ -39,11 +40,19 @@ void ATankPlayerController::AimTowardsCrosshair()
 		return;
 	}
 
+	UTankAimingComponent* TankAimingComponent = MyTank->FindComponentByClass<UTankAimingComponent>();
+	if (!TankAimingComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Unable to get TankAimingComponent in AimTowardsCrosshair() function"))
+		return;
+	}
+
 	FVector HitLocation;
 
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		MyTank->AimAt(HitLocation);
+		// MyTank->AimAt(HitLocation);
+		TankAimingComponent->AimAt(HitLocation);
 	}
 }
 
