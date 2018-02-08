@@ -39,7 +39,7 @@ private:
 
 	// How close to get to Player Tank in cm
 	UPROPERTY(EditDefaultsOnly)
-	float AcceptanceRadius = 3000;
+	float AcceptanceRadius = 300;
 
 	UPROPERTY(EditDefaultsOnly)
 	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!

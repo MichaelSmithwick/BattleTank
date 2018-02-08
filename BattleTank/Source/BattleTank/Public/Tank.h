@@ -40,6 +40,10 @@ public:
 	// Location of whatever the tank is aiming at
 	void AimAt(FVector HitLocation);
 
+	float GetForwardMultiplier();
+
+	float GetRightTurnMultiplier();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -73,4 +77,10 @@ private:
 	// The blueprint of the projectile (must be AProjectile class)
 	UPROPERTY(EditDefaultsOnly, Category = Setup)
 	TSubclassOf<AProjectile> ProjectileBlueprint;
+
+	UPROPERTY(EditAnywhere, Category = Physics)
+	float ForwardMultiplier = 0.15;
+
+	UPROPERTY(EditAnywhere, Category = Physics)
+	float RightTurnMultiplier = 0.15;
 };
