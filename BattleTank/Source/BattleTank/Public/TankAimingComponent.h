@@ -31,30 +31,32 @@ public:
 
 	bool Reloading();
 
+	bool IsBarrelMoving();
+
 	// called to handle aiming for the tank
 	void AimAt(FVector HitLocation);
 
 	// Move tank barrel
-	bool MoveBarrelTowards(FVector AimDirection);
+	bool MoveBarrel();
 
 	// Move tank turret
-	bool MoveTurretTowards(FVector AimDirection);
+	bool MoveTurret();
 
 	// fire the projectile
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Fire();
 
 protected:
-	// Called when the game starts
+	// called to initialize this Actor
 	virtual void BeginPlay() override;
-
-	// Firing Status
-	UPROPERTY(BlueprintReadOnly, Category = "State")
-	EFiringStatus FiringStatus = EFiringStatus::Locked;
 
 	// Tank barrel and turret are captured
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
+
+	// Firing Status
+	UPROPERTY(BlueprintReadOnly, Category = "State")
+	EFiringStatus FiringStatus = EFiringStatus::Reloading;
 
 	// The firing solution when the turret and barrel are within
 	// plus/minus this value on either side of 0.0
@@ -81,6 +83,9 @@ private:
 
 	double LastFireTime = 0;
 
+	FVector AimDirection;
+
 	bool AimAndLock(const FVector & OutLaunchVelocity);
 
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 };

@@ -41,7 +41,7 @@ void ATankPlayerController::AimTowardsCrosshair()
 {
 	ATank* MyTank = GetControlledTank();
 
-	if (!ensure(MyTank))
+	if (!MyTank)
 	{
 		// TODO Figure out why this is continually called even when game is not running - if game is not running there will be no player tank
 		// UE_LOG(LogTemp,Error,TEXT("Unable to get Controlled Tank in AimTowardsCrosshair() function"))

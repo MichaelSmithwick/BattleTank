@@ -8,31 +8,60 @@
 #include "TankTurret.h"
 #include "Engine/World.h"
 
+// called to initialize object before beginning play
+void UTankAimingComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FiringStatus = EFiringStatus::Reloading;
+
+	// make tank load up ammo before first fire
+	LastFireTime = FPlatformTime::Seconds();
+}
+
+// called every Tick
+void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	if (Reloading())
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+	else if (IsBarrelMoving())
+	{
+		FiringStatus = EFiringStatus::Aiming;
+	}
+	else
+	{
+		FiringStatus = EFiringStatus::Locked;
+	}
+}
+
 // Sets default values for this component's properties
 UTankAimingComponent::UTankAimingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
 }
 
-
-// Called when the game starts
-void UTankAimingComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	FiringStatus = EFiringStatus::Aiming;
-	// ...
-	
-}
 
 // returns true if in reloading cycle, otherwise false is returned
 bool UTankAimingComponent::Reloading()
 {
 	return (FPlatformTime::Seconds() - LastFireTime) <= ReloadTimeInSeconds;
+}
+
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(Barrel))
+	{
+		return false;
+	}
+
+	FVector BarrelForward = Barrel->GetForwardVector();
+	return !BarrelForward.Equals(AimDirection, 0.01);
 }
 
 // moves barrel and turret towards target firing solution and possibly locks on firing solution
@@ -41,33 +70,25 @@ bool UTankAimingComponent::AimAndLock(const FVector& OutLaunchVelocity)
 {
 	bTargetLock = false;
 
-	FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+	AimDirection = OutLaunchVelocity.GetSafeNormal();
 
 	// move barrel and turret without regard to reloading status
-	bool BarrelLock = MoveBarrelTowards(AimDirection);
-	bool TurretLock = MoveTurretTowards(AimDirection);
+	MoveBarrel();
+	MoveTurret();
 
 	// if reloading then target lock and aiming is not possible
 	if (!Reloading())
 	{
-		if (BarrelLock && TurretLock)
+		if (!IsBarrelMoving())
 		{
-			FiringStatus = EFiringStatus::Locked;
 			bTargetLock = true;
 		}
-		else
-		{
-			FiringStatus = EFiringStatus::Aiming;
-		}
-	}
-	else
-	{
-		FiringStatus = EFiringStatus::Reloading;
 	}
 
 	return bTargetLock;
 }
 
+// calculate aiming angle from this tank to HitLocation
 void UTankAimingComponent::AimAt(FVector HitLocation)
 {
 	if(ensure(Barrel && Turret))
@@ -95,7 +116,9 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 	}
 }
 
-bool UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
+// pitch barrel up or down to get correct elevation for firing at AimDirection
+// return true if the elevation is at correct elevation within error margin LockError
+bool UTankAimingComponent::MoveBarrel()
 {
 	FRotator BarrelRotator = Barrel->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
@@ -103,10 +126,13 @@ bool UTankAimingComponent::MoveBarrelTowards(FVector AimDirection)
 
 	Barrel->ElevateBarrel(DeltaRotator.Pitch);
 
+	// TODO Change LockError to be percentage instead of a fixed value
 	return DeltaRotator.Pitch < LockError;
 }
 
-bool UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
+// rotate turret from current position towards target at AimDirection
+// return true if turret is aligned with target within tolerance of LockError
+bool UTankAimingComponent::MoveTurret()
 {
 	FRotator TurretRotator = Turret->GetForwardVector().Rotation();
 	FRotator AimAsRotator = AimDirection.Rotation();
@@ -117,20 +143,24 @@ bool UTankAimingComponent::MoveTurretTowards(FVector AimDirection)
 	return DeltaRotator.Yaw < LockError;
 }
 
+// Capture pointers to instantiated barrel and turret from blueprint
 void UTankAimingComponent::Initialize(UTankBarrel * BarrelToSet, UTankTurret * TurretToSet)
 {
 	Barrel = BarrelToSet;
 	Turret = TurretToSet;
 }
 
+// If the firing solution is locked then fire the projectile
 void UTankAimingComponent::Fire()
 {
-	if (!ensure(Barrel))
+	// no barrel or no projectile then no firing
+	if (!ensure(Barrel && ProjectileBlueprint))
 	{
 		return;
 	}
 
-	if(!Reloading() && bTargetLock)
+	// if there is a firing solution and we are not reloading then fire
+	if(!Reloading() && !IsBarrelMoving())
 	{
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
 			ProjectileBlueprint,
@@ -139,7 +169,8 @@ void UTankAimingComponent::Fire()
 			);
 
 		Projectile->LaunchProjectile(LaunchSpeed);
-		LastFireTime = FPlatformTime::Seconds();
+
+		LastFireTime = FPlatformTime::Seconds();  // capture the fireing time to calc reloading time
 	}
 }
 

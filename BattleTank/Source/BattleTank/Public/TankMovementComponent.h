@@ -34,11 +34,11 @@ protected:
 
 	// scales the forward input value for controlability
 	UPROPERTY(EditAnywhere, Category = "Setup")
-	float ForwardMultiplier = 0.125;
+	float ForwardMultiplier = 0.105;
 
 	// scales the right turn input value for controlability
 	UPROPERTY(EditAnywhere, Category = "Setup")
-	float RightTurnMultiplier = 0.125;
+	float RightTurnMultiplier = 0.105;
 
 private:
 	// Overridden AI method called to move object -- drives tracks in this case
