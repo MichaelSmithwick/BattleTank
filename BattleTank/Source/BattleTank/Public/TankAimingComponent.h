@@ -29,8 +29,7 @@ public:
 	// Sets default values for this component's properties
 	UTankAimingComponent();
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	bool Reloading();
 
 	// called to handle aiming for the tank
 	void AimAt(FVector HitLocation);
@@ -41,9 +40,7 @@ public:
 	// Move tank turret
 	bool MoveTurretTowards(FVector AimDirection);
 
-	// Is the target in the sights? (true if it is, false otherwise)
-	bool TargetLocked();
-
+	// fire the projectile
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Fire();
 
@@ -51,6 +48,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	// Firing Status
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	EFiringStatus FiringStatus = EFiringStatus::Locked;
 
@@ -58,31 +56,31 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
 
-private:
-	void ClearTargetLock();
-
-	void SetTargetLock();
-
-	UTankBarrel* Barrel = nullptr;
-	UTankTurret* Turret = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	// The firing solution when the turret and barrel are within
+	// plus/minus this value on either side of 0.0
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float LockError = 0.5;
-
-	bool TargetLock = false;
-
-	double LastFireTime = 0;
 
 	// The time delay before next shot is ready
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	float ReloadTimeInSeconds = 3;
+	float ReloadTimeInSeconds = 3.0;
+
+	// The speed in cm/s of the launched projectile
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float LaunchSpeed = 5000;
 
 	// The blueprint of the projectile (must be AProjectile class)
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AProjectile> ProjectileBlueprint;
 
-	// The speed in cm/s of the launched projectile
-	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	float LaunchSpeed = 5000;
+private:
+	UTankBarrel* Barrel = nullptr;
+	UTankTurret* Turret = nullptr;
+
+	bool bTargetLock = false;
+
+	double LastFireTime = 0;
+
+	bool AimAndLock(const FVector & OutLaunchVelocity);
 
 };

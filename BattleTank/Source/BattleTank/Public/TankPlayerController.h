@@ -3,15 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BattleTank.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
+#include "BattleTank.h"
+#include "TankAimingComponent.h"
 #include "TankPlayerController.generated.h"
 
 class ATank;
 
 /**
- * 
+ * Controls aiming for the Player Tank
  */
 UCLASS()
 class BATTLETANK_API ATankPlayerController : public APlayerController
@@ -27,6 +28,11 @@ protected: // blueprints can access protected members and functions
 	// Get the Tank being controlled by this object
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	ATank * GetControlledTank() const;
+
+	// creates the event that will setup the Player_UI Blueprint
+	// this function is declared but not defined, UE4 defines and links it to blueprint
+	UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
+	void FoundAimingComponent(UTankAimingComponent* AimingComponentReference);
 
 private:
 

@@ -30,6 +30,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Initialize(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet);
 
+protected:
+
+	// scales the forward input value for controlability
+	UPROPERTY(EditAnywhere, Category = "Setup")
+	float ForwardMultiplier = 0.125;
+
+	// scales the right turn input value for controlability
+	UPROPERTY(EditAnywhere, Category = "Setup")
+	float RightTurnMultiplier = 0.125;
+
 private:
 	// Overridden AI method called to move object -- drives tracks in this case
 	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;

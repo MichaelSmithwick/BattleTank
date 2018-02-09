@@ -59,9 +59,6 @@ float USimulatedUserController::LeftForward()
 {
 	Left += MovementIncrement();
 	Left = FMath::Clamp<float>(Left, -1.0, 1.0);
-
-	// UE_LOG(LogTemp,Warning,TEXT("Left Forward: %f"), Left)
-
 	return Left;
 }
 
@@ -69,9 +66,6 @@ float USimulatedUserController::LeftReverse()
 {
 	Left -= MovementIncrement();
 	Left = FMath::Clamp<float>(Left, -1.0, 1.0);
-
-	// UE_LOG(LogTemp, Warning, TEXT("Left Reverse: %f"), Left)
-
 	return Left;
 }
 
@@ -79,8 +73,6 @@ float USimulatedUserController::RightForward()
 {
 	Right += MovementIncrement();
 	Right = FMath::Clamp<float>(Right, -1.0, 1.0);
-
-	// UE_LOG(LogTemp, Warning, TEXT("Right Forward: %f"),Right)
 	return Right;
 }
 
@@ -88,9 +80,6 @@ float USimulatedUserController::RightReverse()
 {
 	Right -= MovementIncrement();
 	Right = FMath::Clamp<float>(Right, -1.0, 1.0);
-
-	// UE_LOG(LogTemp, Warning, TEXT("Right Reverse: %f"),Right)
-
 	return Right;
 }
 

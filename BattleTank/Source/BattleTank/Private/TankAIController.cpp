@@ -12,15 +12,14 @@ void ATankAIController::BeginPlay()
 	APawn* ThisTank = GetPawn();
 	APawn* PlayerTank = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-	if (!ThisTank)
+	if (!ensure(ThisTank))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Unable to get AI Tank."))
 		return;
 	}
 
-	if (!PlayerTank)
+	if (!ensure(PlayerTank))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Unable to get Player Tank."))
+		return;
 	}
 }
 

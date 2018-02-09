@@ -3,7 +3,6 @@
 #include "TankMovementComponent.h"
 #include "Engine/World.h"
 #include "TankTrack.h"
-#include "Tank.h"
 
 // Given by the AI Parent Class. Indicates what vector must be taken to reach the target
 // Obstacle avoidance is built into the Parent Class so the vector may not always point at the target.
@@ -37,8 +36,7 @@ void UTankMovementComponent::IntendMoveForward(float Throw)
 	// used to scale the raw input value to this program
 	if (LeftTrack && RightTrack)
 	{
-		ATank* Owner = Cast<ATank>(GetOwner());
-		Throw *= Owner->GetForwardMultiplier();
+		Throw *= ForwardMultiplier;
 		LeftTrack->DriveTrack(Throw);
 		RightTrack->DriveTrack(Throw);
 	}
@@ -52,8 +50,7 @@ void UTankMovementComponent::IntendTurnRight(float Throw)
 	// used to scale the raw input value to this program
 	if (LeftTrack && RightTrack)
 	{
-		ATank* Owner = Cast<ATank>(GetOwner());
-		Throw *= Owner->GetRightTurnMultiplier();
+		Throw *= RightTurnMultiplier;
 		LeftTrack->DriveTrack(Throw);
 		RightTrack->DriveTrack(-Throw);
 	}

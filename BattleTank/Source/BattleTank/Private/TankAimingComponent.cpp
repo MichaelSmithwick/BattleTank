@@ -29,73 +29,68 @@ void UTankAimingComponent::BeginPlay()
 	
 }
 
-// Called every frame
-void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+// returns true if in reloading cycle, otherwise false is returned
+bool UTankAimingComponent::Reloading()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	return (FPlatformTime::Seconds() - LastFireTime) <= ReloadTimeInSeconds;
+}
 
-	// ...
+// moves barrel and turret towards target firing solution and possibly locks on firing solution
+// returns true if target is locked, false if it is not
+bool UTankAimingComponent::AimAndLock(const FVector& OutLaunchVelocity)
+{
+	bTargetLock = false;
+
+	FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
+
+	// move barrel and turret without regard to reloading status
+	bool BarrelLock = MoveBarrelTowards(AimDirection);
+	bool TurretLock = MoveTurretTowards(AimDirection);
+
+	// if reloading then target lock and aiming is not possible
+	if (!Reloading())
+	{
+		if (BarrelLock && TurretLock)
+		{
+			FiringStatus = EFiringStatus::Locked;
+			bTargetLock = true;
+		}
+		else
+		{
+			FiringStatus = EFiringStatus::Aiming;
+		}
+	}
+	else
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+
+	return bTargetLock;
 }
 
 void UTankAimingComponent::AimAt(FVector HitLocation)
 {
-	if (!Barrel || !Turret)
+	if(ensure(Barrel && Turret))
 	{
-		return;
-	}
+		FVector OutLaunchVelocity = FVector(0);
+		FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
 
-	FVector OutLaunchVelocity = FVector(0);
-	FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
+		bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
+			this,
+			OutLaunchVelocity,
+			StartLocation,
+			HitLocation,
+			LaunchSpeed,
+			false,
+			0.0,
+			0.0,
+			ESuggestProjVelocityTraceOption::DoNotTrace
+		);
 
-	bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
-		this,
-		OutLaunchVelocity,
-		StartLocation,
-		HitLocation,
-		LaunchSpeed,
-		false,
-		0.0,
-		0.0,
-		ESuggestProjVelocityTraceOption::DoNotTrace
-	);
-
-	if(bHaveAimSolution)
-	{
-		ClearTargetLock();
-
-		FVector AimDirection = OutLaunchVelocity.GetSafeNormal();
-
-		bool BarrelLock = MoveBarrelTowards(AimDirection);
-		bool TurretLock = MoveTurretTowards(AimDirection);
-
-		// many compilers will optimize out the second operation if the first is false
-		// the MoveTurretTowards() function should be carried out even if MoveBarrelTowards() returns false
-		if (BarrelLock && TurretLock)
+		// if there is a target (firing solution) then move barrel and turret towards it.
+		if (bHaveAimSolution)
 		{
-			bool bReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-
-			if (!bReloaded)
-			{
-				FiringStatus = EFiringStatus::Reloading;
-			}
-			else
-			{
-				FiringStatus = EFiringStatus::Locked;
-			}
-			SetTargetLock();
-		}
-		else
-		{
-			bool bReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-
-			if (!bReloaded)
-			{
-				FiringStatus = EFiringStatus::Reloading;
-			}
-			else
-			{
-				FiringStatus = EFiringStatus::Aiming;
-			}
+			AimAndLock(OutLaunchVelocity);
 		}
 	}
 }
@@ -128,30 +123,15 @@ void UTankAimingComponent::Initialize(UTankBarrel * BarrelToSet, UTankTurret * T
 	Turret = TurretToSet;
 }
 
-void UTankAimingComponent::ClearTargetLock()
-{
-	TargetLock = false;
-}
-
-void UTankAimingComponent::SetTargetLock()
-{
-	TargetLock = true;
-}
-
-bool UTankAimingComponent::TargetLocked()
-{
-	return TargetLock;
-}
-
 void UTankAimingComponent::Fire()
 {
-	//UE_LOG(LogTemp,Warning,TEXT("Bang!! Bang!!"))
-
-	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTimeInSeconds;
-
-	if (Barrel && isReloaded && TargetLocked())
+	if (!ensure(Barrel))
 	{
-		// TODO Check ProjectileBlueprint for nullptr value
+		return;
+	}
+
+	if(!Reloading() && bTargetLock)
+	{
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
 			ProjectileBlueprint,
 			Barrel->GetSocketLocation(FName("Projectile")),

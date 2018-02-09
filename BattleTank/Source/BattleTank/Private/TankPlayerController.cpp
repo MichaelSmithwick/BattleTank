@@ -10,9 +10,15 @@ void ATankPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	ATank* MyTank = GetControlledTank();
-	if (!MyTank)
+	if (!ensure(MyTank))
 	{
-		UE_LOG(LogTemp,Error,TEXT("Unable to get a Tank."))
+		return;
+	}
+
+	UTankAimingComponent* TankAimingComponent = MyTank->FindComponentByClass<UTankAimingComponent>();
+	if (ensure(TankAimingComponent))
+	{
+		FoundAimingComponent(TankAimingComponent);
 	}
 }
 
@@ -20,6 +26,7 @@ void ATankPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// TODO It may be necessary to put a guard here to only call this when game is running
 	AimTowardsCrosshair();
 }
 
@@ -34,16 +41,16 @@ void ATankPlayerController::AimTowardsCrosshair()
 {
 	ATank* MyTank = GetControlledTank();
 
-	if (!MyTank)
+	if (!ensure(MyTank))
 	{
-		UE_LOG(LogTemp,Error,TEXT("Unable to get Controlled Tank in AimTowardsCrosshair() function"))
+		// TODO Figure out why this is continually called even when game is not running - if game is not running there will be no player tank
+		// UE_LOG(LogTemp,Error,TEXT("Unable to get Controlled Tank in AimTowardsCrosshair() function"))
 		return;
 	}
 
 	UTankAimingComponent* TankAimingComponent = MyTank->FindComponentByClass<UTankAimingComponent>();
-	if (!TankAimingComponent)
+	if (!ensure(TankAimingComponent))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Unable to get TankAimingComponent in AimTowardsCrosshair() function"))
 		return;
 	}
 
@@ -51,7 +58,6 @@ void ATankPlayerController::AimTowardsCrosshair()
 
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		// MyTank->AimAt(HitLocation);
 		TankAimingComponent->AimAt(HitLocation);
 	}
 }
