@@ -94,14 +94,14 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 	if(ensure(Barrel && Turret))
 	{
 		FVector OutLaunchVelocity = FVector(0);
-		FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile"));
+		FVector StartLocation = Barrel->GetSocketLocation(FName("Projectile")); // currently at business end of barrel
 
 		bool bHaveAimSolution = UGameplayStatics::SuggestProjectileVelocity(
 			this,
-			OutLaunchVelocity,
-			StartLocation,
-			HitLocation,
-			LaunchSpeed,
+			OutLaunchVelocity, // initial velocity is 0.0
+			StartLocation,     // end of barrel where Projectile socket is
+			HitLocation,       // from TankController (Player or AI)
+			LaunchSpeed,       // blueprint settable option
 			false,
 			0.0,
 			0.0,
@@ -138,6 +138,11 @@ bool UTankAimingComponent::MoveTurret()
 	FRotator AimAsRotator = AimDirection.Rotation();
 	FRotator DeltaRotator = AimAsRotator - TurretRotator;
 
+	if (FMath::Abs(DeltaRotator.Yaw) > 180.0)
+	{
+		DeltaRotator = TurretRotator - AimAsRotator;
+	}
+
 	Turret->RotateTurret(DeltaRotator.Yaw);
 
 	return DeltaRotator.Yaw < LockError;
@@ -172,5 +177,10 @@ void UTankAimingComponent::Fire()
 
 		LastFireTime = FPlatformTime::Seconds();  // capture the fireing time to calc reloading time
 	}
+}
+
+EFiringStatus UTankAimingComponent::GetFiringStatus() const
+{
+	return FiringStatus;
 }
 

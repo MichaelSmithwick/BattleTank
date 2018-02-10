@@ -46,6 +46,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Fire();
 
+	EFiringStatus GetFiringStatus() const;
+
 protected:
 	// called to initialize this Actor
 	virtual void BeginPlay() override;
@@ -65,7 +67,7 @@ protected:
 
 	// The time delay before next shot is ready
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	float ReloadTimeInSeconds = 3.0;
+	float ReloadTimeInSeconds = 6.0;
 
 	// The speed in cm/s of the launched projectile
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")

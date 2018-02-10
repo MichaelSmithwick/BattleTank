@@ -20,7 +20,14 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+protected:
 
+	// How close to get to Player Tank in cm
+	UPROPERTY(EditAnywhere, Category = "Setup")
+	float AcceptanceRadius = 8000;
+
+	UPROPERTY(EditDefaultsOnly)
+	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
 
 private:
 	// TODO - Determine if these functions are needed for the AI Tank Controller
@@ -32,15 +39,4 @@ private:
 
 	bool GetLookVectorHitLocation(const FVector & LookDirection, FVector & HitLocation) const;
 
-	/*
-	ATank* GetControlledTank() const;
-	ATank* GetPlayerTank() const;
-	*/
-
-	// How close to get to Player Tank in cm
-	UPROPERTY(EditDefaultsOnly)
-	float AcceptanceRadius = 300;
-
-	UPROPERTY(EditDefaultsOnly)
-	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
 };

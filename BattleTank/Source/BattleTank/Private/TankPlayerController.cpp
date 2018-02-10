@@ -5,6 +5,7 @@
 #include "Tank.h"
 #include "TankAimingComponent.h"
 
+// check for existence of Player Tank and Tank Aiming Component
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -22,6 +23,7 @@ void ATankPlayerController::BeginPlay()
 	}
 }
 
+// move barrel and turret towards the aiming reticle firing solution
 void ATankPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -55,21 +57,29 @@ void ATankPlayerController::AimTowardsCrosshair()
 	}
 
 	FVector HitLocation;
+	bool bGotHitLocation = GetSightRayHitLocation(HitLocation);
 
-	if (GetSightRayHitLocation(HitLocation))
+	if (bGotHitLocation)
 	{
+		// pass the HitLocation to the TankAimingComponent to handle moving the turret/barrel on target
 		TankAimingComponent->AimAt(HitLocation);
 	}
 }
 
 // Linetrace along that look direction, and see what we hit (up to max range)
+// @return true if a HitLocation is detected, false if no HitLocation
+// HitLocation value is indeterminate if false is returned
+// HitLocation holds the X,Y,Z coordinates of the HitLocation if true is returned
 bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation)
 {
 	FVector2D ScreenLocation = CrosshairScreenLocation();
 	FVector LookDirection;
 
+	// Get the direction the player is looking in, i.e. LookDirection
 	if(GetLookDirection(ScreenLocation, LookDirection))
 	{
+		// Return the hit location of the projectile along the LookDirection
+		// or 0 and false if no hit location
 		return GetLookVectorHitLocation(LookDirection,HitLocation);
 	}
 
@@ -77,6 +87,7 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation)
 }
 
 // Get the X,Y coordinates of the Crosshair location in the viewport
+// @CrossHairXLocation and @CrossHairYLocation are blueprint setable percentage values
 FVector2D ATankPlayerController::CrosshairScreenLocation()
 {
 	// The aiming point is positioned statically in the viewport.
@@ -112,6 +123,7 @@ bool ATankPlayerController::GetLookVectorHitLocation(const FVector& LookDirectio
 	FVector Start=PlayerCameraManager->GetCameraLocation();
 	FVector End = Start + (LookDirection*LineTraceRange); // note vector functionality here!!
 
+	// calculate if there is any collision along path from Start to End
 	if (GetWorld()->LineTraceSingleByChannel(
 		OutHit,
 		Start,

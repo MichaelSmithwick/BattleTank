@@ -28,32 +28,32 @@ void UTankMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool
 	IntendTurnRight(RightVelocity);
 }
 
-// Moves Tank forward/backward with input range -1 to 1
-// Both tracks are driven equally forward or reverse determined by the sign of Throw
-void UTankMovementComponent::IntendMoveForward(float Throw)
+// moves tank
+// if @Turn is false the Throw is applied equally to both Left and Right Tracks
+// if @Turn is true the Throw is applied negatively to the Right Track causing the Tank to spin
+void UTankMovementComponent::DriveTank(float Throw, bool Turn)
 {
-	// Multiplier is a blueprint settable parameter in Tank
-	// used to scale the raw input value to this program
 	if (LeftTrack && RightTrack)
 	{
-		Throw *= ForwardMultiplier;
-		LeftTrack->DriveTrack(Throw);
-		RightTrack->DriveTrack(Throw);
+		LeftTrack->SetThrottle(Throw);
+		RightTrack->SetThrottle(Throw*(Turn?-1.0:1.0));
 	}
 }
 
+// Moves Tank forward/backward with input range -1 to 1
+void UTankMovementComponent::IntendMoveForward(float Throw)
+{
+	// ForwardMultiplier is a blueprint setable parameter of TankTrack
+	// for scaleing the input value
+	DriveTank(ForwardMultiplier * Throw);
+}
+
 // Moves Tank clockwise/counterclockwise with input range -1 to 1
-// One track is driven forward and the other in reverse to accomplish the turn
 void UTankMovementComponent::IntendTurnRight(float Throw)
 {
-	// Multiplier is a blueprint settable parameter in Tank
-	// used to scale the raw input value to this program
-	if (LeftTrack && RightTrack)
-	{
-		Throw *= RightTurnMultiplier;
-		LeftTrack->DriveTrack(Throw);
-		RightTrack->DriveTrack(-Throw);
-	}
+	// RightTurnMultiplier is a blueprint setable parameter of TankTrack
+	// for scaleing the input value
+	DriveTank(RightTurnMultiplier * Throw, true);
 }
 
 // Capture and store instantiated Track objects from blueprint

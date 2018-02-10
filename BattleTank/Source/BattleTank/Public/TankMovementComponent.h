@@ -34,15 +34,18 @@ protected:
 
 	// scales the forward input value for controlability
 	UPROPERTY(EditAnywhere, Category = "Setup")
-	float ForwardMultiplier = 0.105;
+	float ForwardMultiplier = 0.35;
 
 	// scales the right turn input value for controlability
 	UPROPERTY(EditAnywhere, Category = "Setup")
-	float RightTurnMultiplier = 0.105;
+	float RightTurnMultiplier = 1.0;
 
 private:
 	// Overridden AI method called to move object -- drives tracks in this case
 	virtual void RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed) override;
+
+	// move tank through the space
+	void DriveTank(float Throw, bool Turn=false);
 
 	// Pointer to TankTrack objects from Initialize() function - used to drive Tank
 	UTankTrack* LeftTrack = nullptr;
