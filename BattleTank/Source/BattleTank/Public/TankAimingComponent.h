@@ -13,7 +13,8 @@ enum class EFiringStatus : uint8
 {
 	Reloading,
 	Aiming,
-	Locked
+	Locked,
+	Empty
 };
 
 class UTankBarrel;
@@ -29,8 +30,10 @@ public:
 	// Sets default values for this component's properties
 	UTankAimingComponent();
 
+	// reloading if within "@ReloadTimeInSeconds" of last shot
 	bool Reloading();
 
+	// moving if not aligned with aimed at target
 	bool IsBarrelMoving();
 
 	// called to handle aiming for the tank
@@ -46,34 +49,43 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Fire();
 
+	// returns firing status used to control color on reticle
 	EFiringStatus GetFiringStatus() const;
+
+	// returns the amount of ammo left to fire
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	int32 GetAmmoLeft() const;
 
 protected:
 	// called to initialize this Actor
 	virtual void BeginPlay() override;
 
-	// Tank barrel and turret are captured
+	// Tank barrel and turret are captured (Settable)
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
 
-	// Firing Status
+	// Firing Status (Read Only)
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	EFiringStatus FiringStatus = EFiringStatus::Reloading;
 
 	// The firing solution when the turret and barrel are within
-	// plus/minus this value on either side of 0.0
+	// plus/minus this value on either side of 0.0 (Settable)
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float LockError = 0.5;
 
-	// The time delay before next shot is ready
+	// The time delay before next shot is ready (Settable)
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float ReloadTimeInSeconds = 6.0;
 
-	// The speed in cm/s of the launched projectile
+	// The speed in cm/s of the launched projectile (Settable)
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float LaunchSpeed = 5000;
 
-	// The blueprint of the projectile (must be AProjectile class)
+	// Initial number of shots for the Tank (Settable)
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	int32 InitialAmmoSupply = 5;
+
+	// The blueprint of the projectile (must be AProjectile class) (Settable)
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AProjectile> ProjectileBlueprint;
 
@@ -81,11 +93,17 @@ private:
 	UTankBarrel* Barrel = nullptr;
 	UTankTurret* Turret = nullptr;
 
+	// indicates if target has been locked
 	bool bTargetLock = false;
 
+	// Last time the gun was fired (used for reloading time)
 	double LastFireTime = 0;
 
+	// Current Aiming Direction
 	FVector AimDirection;
+
+	// Ammo Left
+	int32 CurrentAmmo = 0;
 
 	bool AimAndLock(const FVector & OutLaunchVelocity);
 

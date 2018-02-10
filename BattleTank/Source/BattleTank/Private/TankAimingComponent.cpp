@@ -8,6 +8,16 @@
 #include "TankTurret.h"
 #include "Engine/World.h"
 
+// Sets default values for this component's properties
+UTankAimingComponent::UTankAimingComponent()
+{
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = true;
+
+	// ...
+}
+
 // called to initialize object before beginning play
 void UTankAimingComponent::BeginPlay()
 {
@@ -17,12 +27,20 @@ void UTankAimingComponent::BeginPlay()
 
 	// make tank load up ammo before first fire
 	LastFireTime = FPlatformTime::Seconds();
+
+	// load up the ammo!
+	CurrentAmmo = InitialAmmoSupply;
+
 }
 
 // called every Tick
 void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	if (Reloading())
+	if (CurrentAmmo <= 0)
+	{
+		FiringStatus = EFiringStatus::Empty;
+	}
+	else if (Reloading())
 	{
 		FiringStatus = EFiringStatus::Reloading;
 	}
@@ -36,23 +54,14 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 }
 
-// Sets default values for this component's properties
-UTankAimingComponent::UTankAimingComponent()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-
 // returns true if in reloading cycle, otherwise false is returned
 bool UTankAimingComponent::Reloading()
 {
 	return (FPlatformTime::Seconds() - LastFireTime) <= ReloadTimeInSeconds;
 }
 
+// If barrel forward vector does not equal vector to aim point
+// then the barrel will be moving.
 bool UTankAimingComponent::IsBarrelMoving()
 {
 	if (!ensure(Barrel))
@@ -158,14 +167,17 @@ void UTankAimingComponent::Initialize(UTankBarrel * BarrelToSet, UTankTurret * T
 // If the firing solution is locked then fire the projectile
 void UTankAimingComponent::Fire()
 {
+	// FString Name = GetOwner()->GetName();
+	// UE_LOG(LogTemp,Warning,TEXT("ALBATROSS -- %s -> CurrentAmmo = %d"), *Name, CurrentAmmo)
+
 	// no barrel or no projectile then no firing
 	if (!ensure(Barrel && ProjectileBlueprint))
 	{
 		return;
 	}
 
-	// if there is a firing solution and we are not reloading then fire
-	if(!Reloading() && !IsBarrelMoving())
+	// if there is a firing solution and we are not reloading then fire and we have ammo
+	if(!Reloading() && !IsBarrelMoving() && (CurrentAmmo > 0))
 	{
 		AProjectile* Projectile = GetWorld()->SpawnActor<AProjectile>(
 			ProjectileBlueprint,
@@ -175,12 +187,21 @@ void UTankAimingComponent::Fire()
 
 		Projectile->LaunchProjectile(LaunchSpeed);
 
+		CurrentAmmo--;
+
 		LastFireTime = FPlatformTime::Seconds();  // capture the fireing time to calc reloading time
 	}
 }
 
+// return status of firing state: reloading, aiming, locked, or empty
 EFiringStatus UTankAimingComponent::GetFiringStatus() const
 {
 	return FiringStatus;
+}
+
+// return ammo quantity to caller
+int32 UTankAimingComponent::GetAmmoLeft() const
+{
+	return CurrentAmmo;
 }
 
