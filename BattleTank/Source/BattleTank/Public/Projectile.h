@@ -7,8 +7,9 @@
 #include "Projectile.generated.h"
 
 class UProjectileMovementComponent;
+class UParticleSystemComponent;
 
-UCLASS()
+UCLASS(meta = (BlueprintSpawnableComponent))
 class BATTLETANK_API AProjectile : public AActor
 {
 	GENERATED_BODY()
@@ -23,9 +24,16 @@ public:
 	void LaunchProjectile(float Speed);
 
 protected:
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UStaticMeshComponent* CollisionMesh = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UParticleSystemComponent* LaunchBlast = nullptr;
+
 	UProjectileMovementComponent * ProjectileMovementComponent = nullptr;
 };
