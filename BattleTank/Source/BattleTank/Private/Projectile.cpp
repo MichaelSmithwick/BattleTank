@@ -4,6 +4,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
+#include "Public/TimerManager.h"
 #include "Engine/World.h"
 
 int32 AProjectile::counter = 0;
@@ -32,6 +34,11 @@ AProjectile::AProjectile()
 	ImpactBlast = CreateDefaultSubobject<UParticleSystemComponent>(FName("Impact Blast"));
 	ImpactBlast->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	ImpactBlast->bAutoActivate = false; // will not be activated automatically on creation
+	ImpactBlast->SetVisibility(true);
+
+	ExplosiveForce = CreateDefaultSubobject<URadialForceComponent>(FName("Radial Force"));
+	ExplosiveForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	ExplosiveForce->bAutoActivate = false; // will not be activated automatically on creation
 
 	// controles the projectile movement. create it when needed, not now
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(FName("Projectile Movement"));
@@ -65,5 +72,16 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 	UE_LOG(LogTemp, Warning, TEXT("%f  -- %d : Hit! Hit!"), Time ,ThisProjectilesNumber);
 	LaunchBlast->Deactivate();
 	ImpactBlast->Activate();
+	ExplosiveForce->FireImpulse();
+
+	SetRootComponent(ImpactBlast);
+	CollisionMesh->DestroyComponent();
+
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AProjectile::KillTimer, DestroyTimeDelay,false);
 }
 
+void AProjectile::KillTimer()
+{
+	this->Destroy();
+}
