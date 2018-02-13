@@ -167,14 +167,12 @@ void UTankAimingComponent::Initialize(UTankBarrel * BarrelToSet, UTankTurret * T
 // If the firing solution is locked then fire the projectile
 void UTankAimingComponent::Fire()
 {
-	// FString Name = GetOwner()->GetName();
-	// UE_LOG(LogTemp,Warning,TEXT("ALBATROSS -- %s -> CurrentAmmo = %d"), *Name, CurrentAmmo)
-
 	// no barrel or no projectile then no firing
 	if (!ensure(Barrel && ProjectileBlueprint))
 	{
 		return;
 	}
+
 
 	// if there is a firing solution and we are not reloading then fire and we have ammo
 	if(!Reloading() && !IsBarrelMoving() && (CurrentAmmo > 0))
@@ -185,6 +183,8 @@ void UTankAimingComponent::Fire()
 			Barrel->GetSocketRotation(FName("Projectile"))
 			);
 
+		FString Name = GetOwner()->GetName();
+		UE_LOG(LogTemp,Warning,TEXT("--%s--"),*Name)
 		Projectile->LaunchProjectile(LaunchSpeed);
 
 		CurrentAmmo--;
