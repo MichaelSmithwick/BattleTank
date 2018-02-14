@@ -16,10 +16,8 @@ class BATTLETANK_API ATankAIController : public AAIController
 {
 	GENERATED_BODY()
 
-public:		
-	virtual void BeginPlay() override;
-	void MoveToActorResult(FPathFollowingRequestResult* PathMoveResult, EPathFollowingRequestResult::Type MoveResult, ATank * ThisTank);
-	virtual void Tick(float DeltaSeconds) override;
+public:
+	virtual void SetPawn(APawn* InPawn) override;
 
 protected:
 
@@ -27,6 +25,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Setup")
 	float AcceptanceRadius = 8000;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
+	void MoveToActorResult(FPathFollowingRequestResult* PathMoveResult, EPathFollowingRequestResult::Type MoveResult, ATank * ThisTank);
+
+private:
+	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnPossessedTankDeath();
 };

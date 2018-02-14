@@ -6,6 +6,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Public/TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
 int32 AProjectile::counter = 0;
@@ -81,6 +82,16 @@ void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor,
 	// can be destroyed. Note this is not the C++ object being destroyed here.
 	SetRootComponent(ImpactBlast);
 	CollisionMesh->DestroyComponent();
+
+	// The projectile will cause some damage now  :)
+	UGameplayStatics::ApplyRadialDamage(
+		this,                        // the context
+		ProjectileDamage,            // damage level specified through blueprint
+		GetActorLocation(),          // location of this projectile
+		ExplosiveForce->Radius,      // radius of explosive force defined in blueprint is also damage radius
+		UDamageType::StaticClass(),
+		TArray<AActor*>()            // who to damage - empty array means damage everthing
+	);
 
 	// Set timer callback function to destroy this C++ object.
 	// The short time delay provides opportunity for the ImpactBlast smoke to display prior to destruction.

@@ -6,6 +6,7 @@
 #include "Projectile.h"
 #include "TankBarrel.h"
 #include "TankTurret.h"
+#include "Tank.h"
 #include "Engine/World.h"
 
 // Sets default values for this component's properties
@@ -172,6 +173,13 @@ void UTankAimingComponent::Fire()
 	{
 		return;
 	}
+
+	ATank* Tank = Cast<ATank>(GetOwner());
+	if (Tank->IsNotAlive())
+	{
+		return;
+	}
+
 
 
 	// if there is a firing solution and we are not reloading then fire and we have ammo

@@ -58,6 +58,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	URadialForceComponent* ExplosiveForce = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float ProjectileDamage = 20.0;
+
 	static int32 counter; // counts how many projectiles have been created -- warning, may overflow!!
 
 	int32 ThisProjectilesNumber; // stores the counter variable at the time this projectile was created
