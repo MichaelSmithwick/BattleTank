@@ -183,8 +183,6 @@ void UTankAimingComponent::Fire()
 			Barrel->GetSocketRotation(FName("Projectile"))
 			);
 
-		FString Name = GetOwner()->GetName();
-		UE_LOG(LogTemp,Warning,TEXT("--%s--"),*Name)
 		Projectile->LaunchProjectile(LaunchSpeed);
 
 		CurrentAmmo--;

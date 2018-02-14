@@ -10,7 +10,10 @@
 
 int32 AProjectile::counter = 0;
 
-// Sets default values
+// This object is created when a projectile is fired and destroy after a short time delay when it hits something
+// The root of the projectile is an object mesh assigned through the blueprint (a round ball in this case)
+// The object mesh has assigned to it: (1) Initial launch particle system; (2) Hit particle system; (3) a Radial Force.
+// The object mesh has a UProjectileMovementComponent associated with it 
 AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -22,10 +25,10 @@ AProjectile::AProjectile()
 
 	// notify the mesh on collision. turn off visiblity in normal use
 	CollisionMesh->SetNotifyRigidBodyCollision(true);  // "Simulation generates hit" blueprint property
-	CollisionMesh->SetVisibility(false); // will set to true for testing to enable visibility of the projectile
+	CollisionMesh->SetVisibility(false); // will set to true (in blueprint) for testing to enable projectile visibility 
 
 	// LauchBlast is the program shell for the blast particle called on projectile launch
-	// since the projectile is being created now as part of a launch this has to be activated now as part of that launch
+	// this particle is set to autoactivate when this object becomes live in the game
 	LaunchBlast = CreateDefaultSubobject<UParticleSystemComponent>(FName("Launch Blast"));
 	LaunchBlast->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
@@ -34,20 +37,21 @@ AProjectile::AProjectile()
 	ImpactBlast = CreateDefaultSubobject<UParticleSystemComponent>(FName("Impact Blast"));
 	ImpactBlast->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	ImpactBlast->bAutoActivate = false; // will not be activated automatically on creation
-	ImpactBlast->SetVisibility(true);
+	ImpactBlast->SetVisibility(true); // must be visible to be seen!
 
+	// Create force object to be used when this projectile hits something
 	ExplosiveForce = CreateDefaultSubobject<URadialForceComponent>(FName("Radial Force"));
 	ExplosiveForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	ExplosiveForce->bAutoActivate = false; // will not be activated automatically on creation
 
-	// controles the projectile movement. create it when needed, not now
+	// Create the projectile movement, activated when this projectile is launched
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(FName("Projectile Movement"));
 	ProjectileMovement->bAutoActivate = false; // will not be activated automatically on creation
 
 	ThisProjectilesNumber = AProjectile::counter++;
 }
 
-// Called when the game starts or when spawned
+// Sets up OnHit() callback to handle when object hits something
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -56,27 +60,30 @@ void AProjectile::BeginPlay()
 	CollisionMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 }
 
-// use the movement object to move projectile through the air
+// Called by the TankAimingComponent to move the projectile through the air
 void AProjectile::LaunchProjectile(float Speed)
 {
-	// UE_LOG(LogTemp,Warning,TEXT("RHINO --  Speed %f"), Speed)
 	ProjectileMovement->SetVelocityInLocalSpace(FVector::ForwardVector * Speed);
 	ProjectileMovement->Activate();
 }
 
-// when the projectile hits something the blast & smoke traveling with the projectile will
+// When the projectile hits something the blast & smoke traveling with the projectile will
 // be deactivated and the impact explosion will be activated.
+// A time delay callback function will be set to destroy this object after a short time delay.
 void AProjectile::OnHit(UPrimitiveComponent * HitComponent, AActor * OtherActor, UPrimitiveComponent * OtherComponent, FVector NormalImpulse, const FHitResult & Hit)
 {
-	float Time = GetWorld()->GetTimeSeconds();
-	UE_LOG(LogTemp, Warning, TEXT("%f  -- %d : Hit! Hit!"), Time ,ThisProjectilesNumber);
+	// deactivate launch visual, activate impact visual, trigger force effect
 	LaunchBlast->Deactivate();
 	ImpactBlast->Activate();
 	ExplosiveForce->FireImpulse();
 
+	// It is necessary to set the root component to another item (why?) so this UE component
+	// can be destroyed. Note this is not the C++ object being destroyed here.
 	SetRootComponent(ImpactBlast);
 	CollisionMesh->DestroyComponent();
 
+	// Set timer callback function to destroy this C++ object.
+	// The short time delay provides opportunity for the ImpactBlast smoke to display prior to destruction.
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AProjectile::KillTimer, DestroyTimeDelay,false);
 }

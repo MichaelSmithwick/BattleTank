@@ -9,7 +9,7 @@
 class ATank;
 
 /**
- * 
+ * Controller for the computer controlled Tank
  */
 UCLASS()
 class BATTLETANK_API ATankAIController : public AAIController
@@ -18,25 +18,15 @@ class BATTLETANK_API ATankAIController : public AAIController
 
 public:		
 	virtual void BeginPlay() override;
+	void MoveToActorResult(FPathFollowingRequestResult* PathMoveResult, EPathFollowingRequestResult::Type MoveResult, ATank * ThisTank);
 	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 
-	// How close to get to Player Tank in cm
+	// How close to get to Player Tank in cm (80 meters/260 feet)
 	UPROPERTY(EditAnywhere, Category = "Setup")
 	float AcceptanceRadius = 8000;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float LineTraceRange = 1000000.0; // 1 MILLION Centimeters!
-
-private:
-	// TODO - Determine if these functions are needed for the AI Tank Controller
-	void AimTowardsCrosshair();
-
-	bool GetSightRayHitLocation(FVector & HitLocation) const;
-
-	bool GetLookDirection(const FVector2D & ScreenLocation, FVector & LookDirection) const;
-
-	bool GetLookVectorHitLocation(const FVector & LookDirection, FVector & HitLocation) const;
-
 };

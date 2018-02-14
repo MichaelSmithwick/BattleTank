@@ -22,18 +22,24 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Implements UProjectileMovementComponent to move projectile to target
 	void LaunchProjectile(float Speed);
 
 private:
+	// disables initial particle display, enables hit particle display and sets timer for object destruction
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
+	// destroys this projectile object after a short time delay
 	void KillTimer();
+
+	// TODO Determine how to make launch smoke dissipate before erasing it - aesthetically bad as it is now
 
 	// delay in seconds after hit detected before this object is destroyed
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	float DestroyTimeDelay = 6.0; // seconds
+	float DestroyTimeDelay = 30.0; // seconds
 
+	// Moves projectile from source to target along predetermined path
 	UProjectileMovementComponent * ProjectileMovement = nullptr;
 
 	// projectile mesh is set in blueprint

@@ -10,3 +10,7 @@ ATank::ATank()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
+bool ATank::IsGunOnly()
+{
+	return GunOnly;
+}
