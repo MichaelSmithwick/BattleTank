@@ -47,6 +47,9 @@ public:
 
 	float UE4Sample_TakeDamage(float &Damage, const FDamageEvent & DamageEvent, AController * EventInstigator, AActor * DamageCauser);
 
+protected:
+	virtual void BeginPlay() override;
+
 private:
 	float FloatCurrentHealth;  // used by UE4Sample_TakeDamage()
 

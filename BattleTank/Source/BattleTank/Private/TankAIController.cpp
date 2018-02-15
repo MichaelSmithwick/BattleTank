@@ -24,10 +24,15 @@ void ATankAIController::BeginPlay()
 	}
 }
 
+// This method is used by AAIController to set the Pawn being controlled, the Tank in this case.
+// Also set by this function is the broadcast receipt function used to receive the Tank OnDeath.Broadcast() broadcast.
 void ATankAIController::SetPawn(APawn* InPawn)
 {
-	Super::SetPawn(InPawn);
+	Super::SetPawn(InPawn);  // call Super to register Pawn with this Controller
 
+	// if there is a live Pawn, cast it to Tank, and use ATank::OnDeath.AddUniqueDynamic() to set 
+	// the class function to receive the broadcast (or in reality be called by the broadcast
+	// function of the Tank)
 	if(InPawn)
 	{
 		ATank* PossessedTank = Cast<ATank>(InPawn);
@@ -36,14 +41,20 @@ void ATankAIController::SetPawn(APawn* InPawn)
 			return;
 		}
 
-		// Subscribe our local method to the tank's death event
+		// Subscribe our local method to the controlled Tank's death event broadcast (OnDeath.Broadcast())
 		PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankAIController::OnPossessedTankDeath);
 	}
 }
 
+// This function is called by the Tank owned by the AIObject, i.e. the instantiated Tank this controller is controlling.
+// This function is called through the broadcast method of ATank::OnDeath.Broadcast() from the Tank controlled by this controller.
+// This function is added to this controllers controlled Tank through the OnDeath.AddUniqueDynamic() method.
 void ATankAIController::OnPossessedTankDeath()
 {
-	UE_LOG(LogTemp,Warning,TEXT("Received"))
+	if(GetPawn())
+	{
+		GetPawn()->DetachFromControllerPendingDestroy();
+	}
 }
 
 void ATankAIController::MoveToActorResult(FPathFollowingRequestResult* PathMoveResult, EPathFollowingRequestResult::Type MoveResult, ATank * ThisTank)
@@ -51,7 +62,7 @@ void ATankAIController::MoveToActorResult(FPathFollowingRequestResult* PathMoveR
 	FString MoveResultStr;
 	FString PathStr;
 
-	UE_LOG(LogTemp, Warning, TEXT("%u"),PathMoveResult->MoveId.GetID());
+	// UE_LOG(LogTemp, Warning, TEXT("%u"),PathMoveResult->MoveId.GetID());
 
 	if(GetPathFollowingComponent() == nullptr)
 	{
@@ -78,8 +89,8 @@ void ATankAIController::MoveToActorResult(FPathFollowingRequestResult* PathMoveR
 		break;
 	}
 
-	float Time = GetWorld()->GetTimeSeconds();
-	UE_LOG(LogTemp, Warning, TEXT("[%f] %s : Player Tank found: %s. (%s)"), Time, *(ThisTank->GetName()), *MoveResultStr, *PathStr)
+	// float Time = GetWorld()->GetTimeSeconds();
+	// UE_LOG(LogTemp, Warning, TEXT("[%f] %s : Player Tank found: %s. (%s)"), Time, *(ThisTank->GetName()), *MoveResultStr, *PathStr)
 }
 
 // Called every frame

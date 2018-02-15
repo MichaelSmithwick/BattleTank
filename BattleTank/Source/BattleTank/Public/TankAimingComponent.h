@@ -103,6 +103,7 @@ private:
 	FVector AimDirection;
 
 	// Ammo Left
+	UPROPERTY(VisibleAnywhere, Category = "Ammo")
 	int32 CurrentAmmo = 0;
 
 	bool AimAndLock(const FVector & OutLaunchVelocity);

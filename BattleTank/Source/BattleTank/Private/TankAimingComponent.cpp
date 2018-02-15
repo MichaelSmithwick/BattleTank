@@ -174,13 +174,13 @@ void UTankAimingComponent::Fire()
 		return;
 	}
 
+	/*
 	ATank* Tank = Cast<ATank>(GetOwner());
 	if (Tank->IsNotAlive())
 	{
 		return;
 	}
-
-
+	*/
 
 	// if there is a firing solution and we are not reloading then fire and we have ammo
 	if(!Reloading() && !IsBarrelMoving() && (CurrentAmmo > 0))

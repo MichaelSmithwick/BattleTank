@@ -8,6 +8,11 @@ ATank::ATank()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
+}
+
+void ATank::BeginPlay()
+{
+	Super::BeginPlay();
 
 	// initialize Health Level
 	CurrentHealth = StartingHealth;
@@ -24,6 +29,10 @@ float ATank::TakeDamage(float Damage, const FDamageEvent & DamageEvent, AControl
 	if (CurrentHealth <= 0)
 	{
 		CurrentHealth = 0;
+
+		// All functions registered with this instantiations OnDeath.AddUniqueDynamic() function
+		// will be called with this broadcast.  The called functions are free to do what they
+		// want. The order the functions are called in is indeterminate.
 		OnDeath.Broadcast();
 	}
 
@@ -69,10 +78,7 @@ float ATank::UE4Sample_TakeDamage(float &Damage, const FDamageEvent & DamageEven
 		}
 	}
 
-	FString Name = GetName();
-	UE_LOG(LogTemp, Warning, TEXT("WALRUS - %s Damage applied %f from initial damage of %f resulted in %f actual damage"), *Name, Damage, InitialDamage, ActualDamage)
-
-		return ActualDamage;
+	return ActualDamage;
 }
 
 // returns Tank health on scale 0 to 100 where 0==dead, 100==prime condition

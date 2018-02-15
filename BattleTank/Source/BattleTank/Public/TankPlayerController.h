@@ -23,6 +23,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	// need this function in order to register for the Player Tank Death Broadcast
+	virtual void SetPawn(APawn* InPawn) override;
+
 protected: // blueprints can access protected members and functions
 
 	// Get the Tank being controlled by this object
@@ -35,6 +38,9 @@ protected: // blueprints can access protected members and functions
 	void FoundAimingComponent(UTankAimingComponent* AimingComponentReference);
 
 private:
+	// When Tank Player Tank Dies This function is called as part of that broadcast
+	UFUNCTION()
+	void OnPossessedTankDeath();
 
 	// Start the tank moving the barrel so that a shot would hit where
 	// the crosshair intersects the world

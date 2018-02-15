@@ -32,6 +32,34 @@ void ATankPlayerController::Tick(float DeltaSeconds)
 	AimTowardsCrosshair();
 }
 
+// This function is used by APlayerController to set the pawn being controlled, the Player Tank in this case
+// Also set by this function is the broadcast receipt function used to receive the Tank OnDeath.Broadcast() broadcast.
+void ATankPlayerController::SetPawn(APawn * InPawn)
+{
+	Super::SetPawn(InPawn);  // call Super to register Pawn with this Controller
+
+	// if there is a live Pawn, cast it to Tank, and use ATank::OnDeath.AddUniqueDynamic() to set 
+	// the class function to receive the broadcast (or in reality be called by the broadcast
+	// function of the Tank)
+	if (InPawn)
+	{
+		ATank* PossessedTank = Cast<ATank>(InPawn);
+		if (!ensure(PossessedTank))
+		{
+			return;
+		}
+
+		// Subscribe our local method to the tank's death event
+		PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankPlayerController::OnPossessedTankDeath);
+	}
+}
+
+// responds to broadcast about player tanks death, i.e. this tanks death
+void ATankPlayerController::OnPossessedTankDeath()
+{
+	StartSpectatingOnly();
+}
+
 // get pawn associated with this object and cast to ATank type
 ATank* ATankPlayerController::GetControlledTank() const
 {
@@ -45,8 +73,8 @@ void ATankPlayerController::AimTowardsCrosshair()
 
 	if (!MyTank)
 	{
-		// TODO Figure out why this is continually called even when game is not running - if game is not running there will be no player tank
-		// UE_LOG(LogTemp,Error,TEXT("Unable to get Controlled Tank in AimTowardsCrosshair() function"))
+		// TODO Figure out why this is continually called even when game is not running
+		// - if game is not running there will be no player tank
 		return;
 	}
 
@@ -128,7 +156,7 @@ bool ATankPlayerController::GetLookVectorHitLocation(const FVector& LookDirectio
 		OutHit,
 		Start,
 		End,
-		ECollisionChannel::ECC_Visibility // hit anything that is visible
+		ECollisionChannel::ECC_Camera // hit anything that is visible changed from ECC_Visibility
 	))
 	{
 		HitLocation = OutHit.Location;
