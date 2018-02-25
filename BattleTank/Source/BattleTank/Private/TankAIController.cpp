@@ -105,7 +105,7 @@ void ATankAIController::Tick(float DeltaSeconds)
 	if (PlayerTank)
 	{
 		// [ Part 1 ] Move towards player tank
-		if (!ThisTank->IsGunOnly())
+		if (ThisTank->IsMoveAble())
 		{
 			EPathFollowingRequestResult::Type MoveResult = MoveToActor(PlayerTank, AcceptanceRadius);
 			// FPathFollowingRequestResult* PathMoveResult = (FPathFollowingRequestResult*)&MoveResult;

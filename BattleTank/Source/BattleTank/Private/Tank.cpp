@@ -98,8 +98,14 @@ bool ATank::IsNotAlive()
 	return GetCurrentHealth()>0 ? false : true;
 }
 
+// returns true if this tank has movement capability, false otherwise
+bool ATank::IsMoveAble()
+{
+	return !bGunOnly;
+}
+
 // returns true if this tank has no movement capability, false otherwise
 bool ATank::IsGunOnly()
 {
-	return GunOnly;
+	return bGunOnly;
 }

@@ -45,6 +45,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	bool IsGunOnly();
 
+	// Returns true if this object does move
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	bool IsMoveAble();
+
 	float UE4Sample_TakeDamage(float &Damage, const FDamageEvent & DamageEvent, AController * EventInstigator, AActor * DamageCauser);
 
 protected:
@@ -54,7 +58,7 @@ private:
 	float FloatCurrentHealth;  // used by UE4Sample_TakeDamage()
 
 	// Health of the Tank
-	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	int32 StartingHealth = 100;
 
 	UPROPERTY(VisibleAnywhere, Category = "Health")
@@ -62,5 +66,5 @@ private:
 
 	// Prevents Path Finding if true, allows movement if false
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
-	bool GunOnly = false;
+	bool bGunOnly = false;
 };

@@ -34,6 +34,8 @@ protected: // blueprints can access protected members and functions
 
 	// creates the event that will setup the Player_UI Blueprint
 	// this function is declared but not defined, UE4 defines and links it to blueprint
+	// this function is called in BeginPlay where the UTankAimingComponent object is 
+	// retreived from the Tank and passed to it.
 	UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
 	void FoundAimingComponent(UTankAimingComponent* AimingComponentReference);
 

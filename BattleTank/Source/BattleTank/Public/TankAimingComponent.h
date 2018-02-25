@@ -60,7 +60,7 @@ protected:
 	// called to initialize this Actor
 	virtual void BeginPlay() override;
 
-	// Tank barrel and turret are captured (Settable)
+	// Tank barrel and turret meshes and objects are captured from blueprint (Settable)
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
 
@@ -106,7 +106,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Ammo")
 	int32 CurrentAmmo = 0;
 
-	bool AimAndLock(const FVector & OutLaunchVelocity);
+	bool AimAndLock(const FVector& OutLaunchVelocity);
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 };

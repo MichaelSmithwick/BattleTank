@@ -19,18 +19,16 @@ UTankAimingComponent::UTankAimingComponent()
 	// ...
 }
 
-// called to initialize object before beginning play
+// initializes ammo and sets Tank to the loading state
 void UTankAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FiringStatus = EFiringStatus::Reloading;
-
-	// make tank load up ammo before first fire
-	LastFireTime = FPlatformTime::Seconds();
-
 	// load up the ammo!
+	// make tank load up ammo before first fire by setting time to now
 	CurrentAmmo = InitialAmmoSupply;
+	FiringStatus = EFiringStatus::Reloading;
+	LastFireTime = FPlatformTime::Seconds();
 
 }
 

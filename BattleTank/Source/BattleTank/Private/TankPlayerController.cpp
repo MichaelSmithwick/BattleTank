@@ -16,6 +16,8 @@ void ATankPlayerController::BeginPlay()
 		return;
 	}
 
+	// get the blueprint assigned aiming component for thie tank
+	// and pass use it to create the aiming pip widget and blueprint variable TankAimingComponent_BP
 	UTankAimingComponent* TankAimingComponent = MyTank->FindComponentByClass<UTankAimingComponent>();
 	if (ensure(TankAimingComponent))
 	{
@@ -27,34 +29,29 @@ void ATankPlayerController::BeginPlay()
 void ATankPlayerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// TODO It may be necessary to put a guard here to only call this when game is running
 	AimTowardsCrosshair();
 }
 
 // This function is used by APlayerController to set the pawn being controlled, the Player Tank in this case
-// Also set by this function is the broadcast receipt function used to receive the Tank OnDeath.Broadcast() broadcast.
+// ATankPlayer uses SetPawn() to assign the function used to receive the Tank OnDeath.Broadcast() broadcast.
 void ATankPlayerController::SetPawn(APawn * InPawn)
 {
 	Super::SetPawn(InPawn);  // call Super to register Pawn with this Controller
 
-	// if there is a live Pawn, cast it to Tank, and use ATank::OnDeath.AddUniqueDynamic() to set 
-	// the class function to receive the broadcast (or in reality be called by the broadcast
-	// function of the Tank)
+	// Use the OnDeath.AddUniqueDynamic() function of the ATank object 
+	// to subscribe our local method to the Tank's death event
 	if (InPawn)
 	{
 		ATank* PossessedTank = Cast<ATank>(InPawn);
-		if (!ensure(PossessedTank))
+		if (PossessedTank)
 		{
-			return;
+			PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankPlayerController::OnPossessedTankDeath);
 		}
-
-		// Subscribe our local method to the tank's death event
-		PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankPlayerController::OnPossessedTankDeath);
 	}
 }
 
-// responds to broadcast about player tanks death, i.e. this tanks death
+// responds to broadcast about player tanks death
+// separate player controller from the tank
 void ATankPlayerController::OnPossessedTankDeath()
 {
 	StartSpectatingOnly();
